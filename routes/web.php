@@ -20,6 +20,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::resource("users", UserController::class);
     Route::resource("projects", \App\Http\Controllers\ProjectController::class);
+    Route::resource("events", \App\Http\Controllers\EventController::class);
 });
 
 
