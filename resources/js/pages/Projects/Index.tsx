@@ -362,7 +362,6 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List' }: P
                                                 </Link>
                                                 <button
                                                     onClick={() => {
-                                                        console.log('Edit clicked for project:', p);
                                                         startEdit(p);
                                                         setOpenDropdown(null);
                                                     }}
@@ -373,7 +372,6 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List' }: P
                                                 </button>
                                                 <button
                                                     onClick={() => {
-                                                        console.log('Delete clicked for project:', p);
                                                         showDeleteConfirmation(p);
                                                     }}
                                                     className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
