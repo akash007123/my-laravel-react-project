@@ -734,34 +734,36 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                             {/* Event List Column - 4/12 */}
                             <div className="col-span-12 md:col-span-4 bg-white rounded-lg shadow p-4 sm:p-6">
                                 <h2 className="text-xl font-semibold mb-4">Event List</h2>
-                                <ul className="space-y-3">
-                                    {allEvents.map((event) => {
-                                        const statusColor = getEventColor(event.status);
-                                        const bgColor = getEventBgColor(event.status);
-                                        const textColor = getEventTextColor(event.status);
-                                        
-                                        return (
-                                            <li key={event.id} 
-                                                className={`border-l-6 p-4 rounded-lg flex justify-between items-center cursor-pointer transition-colors hover:opacity-80`}
-                                                style={{
-                                                    borderLeftColor: statusColor,
-                                                    backgroundColor: bgColor,
-                                                }}
-                                                onClick={() => router.visit(route('events.show', event.id))}>
-                                                <div>
-                                                    <p className={`font-medium ${textColor}`}>{event.title}</p>
-                                                    <p className={`text-sm ${textColor} opacity-80`}>
-                                                        {event.event_date} 
-                                                    </p>
-                                                </div>
-                                                <span className={`px-2 py-1 rounded text-xs text-white font-medium`}
-                                                      style={{ backgroundColor: statusColor }}>
-                                                    {event.status}
-                                                </span>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
+                                <div className="h-150 overflow-y-auto">
+                                    <ul className="space-y-3">
+                                        {allEvents.map((event) => {
+                                            const statusColor = getEventColor(event.status);
+                                            const bgColor = getEventBgColor(event.status);
+                                            const textColor = getEventTextColor(event.status);
+                                            
+                                            return (
+                                                <li key={event.id} 
+                                                    className={`border-l-6 p-4 rounded-lg flex justify-between items-center cursor-pointer transition-colors hover:opacity-80`}
+                                                    style={{
+                                                        borderLeftColor: statusColor,
+                                                        backgroundColor: bgColor,
+                                                    }}
+                                                    onClick={() => router.visit(route('events.show', event.id))}>
+                                                    <div>
+                                                        <p className={`font-medium ${textColor}`}>{event.title}</p>
+                                                        <p className={`text-sm ${textColor} opacity-80`}>
+                                                            {event.event_date} 
+                                                        </p>
+                                                    </div>
+                                                    <span className={`px-2 py-1 rounded text-xs text-white font-medium`}
+                                                          style={{ backgroundColor: statusColor }}>
+                                                        {event.status}
+                                                    </span>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
