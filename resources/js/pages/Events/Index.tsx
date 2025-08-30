@@ -2,6 +2,11 @@ import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState, type FormEvent, useEffect } from 'react';
 import { Eye, Trash2, Pencil, MoreVertical, Calendar, Clock, MapPin, Users } from 'lucide-react';
+import FullCalendar from '@fullcalendar/react';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+
 
 interface EventsIndexProps {
     events: { data: Event[]; links: any[] };
@@ -25,7 +30,7 @@ interface Event {
 }
 
 export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsIndexProps) {
-    const tabs = ['Create', 'List', 'Cards', 'Calender'] as const;
+    const tabs = ['Create', 'List', 'Cards', 'Calendar'] as const;
     const [activeTab, setActiveTab] = useState<typeof tabs[number]>(tab as typeof tabs[number]);
     const [openDropdown, setOpenDropdown] = useState<number | string | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -150,7 +155,8 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
             }
         });
         if (editingId) {
-            router.put(route('events.update', editingId), formData, {
+            formData.append('_method', 'PUT');
+            router.post(route('events.update', editingId), formData, {
                 forceFormData: true,
                 onSuccess: () => {
                     reset();
@@ -196,6 +202,36 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
             minute: '2-digit',
             hour12: true,
         });
+    }
+
+    function getEventColor(status: string) {
+        switch (status) {
+            case 'upcoming': return '#3B82F6'; // blue
+            case 'ongoing': return '#10B981'; // green
+            case 'completed': return '#6B7280'; // gray
+            case 'cancelled': return '#EF4444'; // red
+            default: return '#3B82F6'; // blue
+        }
+    }
+
+    function getEventBgColor(status: string) {
+        switch (status) {
+            case 'upcoming': return '#EFF6FF'; // light blue
+            case 'ongoing': return '#ECFDF5'; // light green
+            case 'completed': return '#F3F4F6'; // light gray
+            case 'cancelled': return '#FEF2F2'; // light red
+            default: return '#EFF6FF'; // light blue
+        }
+    }
+
+    function getEventTextColor(status: string) {
+        switch (status) {
+            case 'upcoming': return '#1E40AF'; // dark blue
+            case 'ongoing': return '#065F46'; // dark green
+            case 'completed': return '#374151'; // dark gray
+            case 'cancelled': return '#991B1B'; // dark red
+            default: return '#1E40AF'; // dark blue
+        }
     }
 
     return (
@@ -441,9 +477,9 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Location
                                         </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status
-                                        </th>
+                                        </th> */}
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Organizer
                                         </th>
@@ -493,11 +529,11 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                                                     </div>
                                                 )}
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
+                                            {/* <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[event.status]}`}>
                                                     {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
                                                 </span>
-                                            </td>
+                                            </td> */}
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                                 {event.organizer}
                                             </td>
@@ -519,13 +555,13 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                                                                     <Eye className="h-4 w-4 mr-2" />
                                                                     View
                                                                 </Link>
-                                                                <button
-                                                                    onClick={() => startEdit(event)}
+                                                                <Link
+                                                                    href={route('events.edit', event.id)}
                                                                     className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                                 >
                                                                     <Pencil className="h-4 w-4 mr-2" />
                                                                     Edit
-                                                                </button>
+                                                                </Link>
                                                                 <button
                                                                     onClick={() => handleDelete(event)}
                                                                     className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -626,90 +662,116 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                     </div>
                 )}
 
-                {/* Calender Tab */}
-                {activeTab === 'Calender' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {allEvents.map((event) => (
-                            <div key={event.id} className="bg-white rounded-lg shadow overflow-hidden">
-                                {event.image_url && (
-                                    <img
-                                        className="w-full h-48 object-cover"
-                                        src={event.image_url}
-                                        alt={event.title}
+                {/* Calendar Tab */}
+                {activeTab === 'Calendar' && (
+                    <div className="container mx-auto p-4">
+                        <div className="grid grid-cols-12 gap-4">
+                            {/* Calendar Column - 8/12 */}
+                            <div className="col-span-12 md:col-span-8 bg-white rounded-lg shadow p-4 sm:p-6">
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+                                    <h2 className="text-xl font-semibold">Calendar View</h2>
+                                    <button
+                                        className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
+                                        onClick={() => setActiveTab('Create')}
+                                    >
+                                        New Event
+                                    </button>
+                                </div>
+                                <div className="my-calendar-container">
+                                    <FullCalendar
+                                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                        initialView="dayGridMonth"
+                                        headerToolbar={{
+                                            left: 'prev,next today',
+                                            center: 'title',
+                                            right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                                        }}
+                                        weekends={true}
+                                        events={allEvents.map(event => {
+                                            let startDate, endDate;
+                                            try {
+                                                startDate = event.event_date.includes('T')
+                                                    ? event.event_date
+                                                    : `${event.event_date}T${event.start_time}`;
+                                                endDate = event.end_time
+                                                    ? (event.event_date.includes('T')
+                                                        ? event.event_date.replace(/T.*/, `T${event.end_time}`)
+                                                        : `${event.event_date}T${event.end_time}`)
+                                                    : undefined;
+                                                startDate = new Date(startDate).toISOString();
+                                                if (endDate) endDate = new Date(endDate).toISOString();
+                                            } catch {
+                                                startDate = event.event_date;
+                                                endDate = event.end_time ? `${event.event_date}T${event.end_time}` : undefined;
+                                            }
+                                            return {
+                                                id: event.id?.toString(),
+                                                title: event.title,
+                                                start: startDate,
+                                                end: endDate,
+                                                backgroundColor: getEventColor(event.status),
+                                                borderColor: getEventColor(event.status),
+                                                textColor: '#ffffff'
+                                            };
+                                        })}
+                                        eventClick={(info) => {
+                                            if (info.event.id) router.visit(route('events.show', info.event.id));
+                                        }}
+                                        height="auto"
+                                        dayMaxEvents={true}
+                                        moreLinkClick="popover"
+                                        eventDisplay="block"
+                                        eventTimeFormat={{ hour: 'numeric', minute: '2-digit', hour12: true }}
+                                        slotMinTime="00:00:00"
+                                        slotMaxTime="23:59:59"
+                                        nowIndicator={true}
+                                        editable={false}
+                                        selectable={false}
                                     />
-                                )}
-                                <div className="p-6">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <h3 className="text-lg font-semibold text-gray-900 truncate">
-                                            {event.title}
-                                        </h3>
-                                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[event.status]}`}>
-                                            {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                                        </span>
-                                    </div>
-
-                                    {event.description && (
-                                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                                            {event.description}
-                                        </p>
-                                    )}
-
-                                    <div className="space-y-2 mb-4">
-                                        <div className="flex items-center text-sm text-gray-500">
-                                            <Calendar className="h-4 w-4 mr-2" />
-                                            {formatDate(event.event_date)}
-                                        </div>
-                                        <div className="flex items-center text-sm text-gray-500">
-                                            <Clock className="h-4 w-4 mr-2" />
-                                            {formatTime(event.start_time)}
-                                            {event.end_time && ` - ${formatTime(event.end_time)}`}
-                                        </div>
-                                        <div className="flex items-center text-sm text-gray-500">
-                                            <MapPin className="h-4 w-4 mr-2" />
-                                            {event.location}
-                                        </div>
-                                        {event.capacity && (
-                                            <div className="flex items-center text-sm text-gray-500">
-                                                <Users className="h-4 w-4 mr-2" />
-                                                Capacity: {event.capacity}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {event.tags && event.tags.length > 0 && (
-                                        <div className="flex flex-wrap gap-1 mb-4">
-                                            {event.tags.map((tag, index) => (
-                                                <span
-                                                    key={index}
-                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${tagColors[index % tagColors.length]}`}
-                                                >
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500">by {event.organizer}</span>
-                                        <div className="flex space-x-2">
-                                            <Link
-                                                href={route('events.show', event.id)}
-                                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                            >
-                                                View Details
-                                            </Link>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-                        ))}
+
+                            {/* Event List Column - 4/12 */}
+                            <div className="col-span-12 md:col-span-4 bg-white rounded-lg shadow p-4 sm:p-6">
+                                <h2 className="text-xl font-semibold mb-4">Event List</h2>
+                                <ul className="space-y-3">
+                                    {allEvents.map((event) => {
+                                        const statusColor = getEventColor(event.status);
+                                        const bgColor = getEventBgColor(event.status);
+                                        const textColor = getEventTextColor(event.status);
+                                        
+                                        return (
+                                            <li key={event.id} 
+                                                className={`border-l-6 p-4 rounded-lg flex justify-between items-center cursor-pointer transition-colors hover:opacity-80`}
+                                                style={{
+                                                    borderLeftColor: statusColor,
+                                                    backgroundColor: bgColor,
+                                                }}
+                                                onClick={() => router.visit(route('events.show', event.id))}>
+                                                <div>
+                                                    <p className={`font-medium ${textColor}`}>{event.title}</p>
+                                                    <p className={`text-sm ${textColor} opacity-80`}>
+                                                        {event.event_date} 
+                                                    </p>
+                                                </div>
+                                                <span className={`px-2 py-1 rounded text-xs text-white font-medium`}
+                                                      style={{ backgroundColor: statusColor }}>
+                                                    {event.status}
+                                                </span>
+                                            </li>
+                                        );
+                                    })}
+                                </ul>
+                            </div>
+                        </div>
                     </div>
+
                 )}
             </div>
 
             {/* Delete Modal */}
             {showDeleteModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-gray-500/50 backdrop-filter backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
                         <h3 className="text-lg font-semibold mb-4">Delete Event</h3>
                         <p className="text-gray-600 mb-6">

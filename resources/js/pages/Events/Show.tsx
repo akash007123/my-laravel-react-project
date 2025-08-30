@@ -1,6 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Calendar, Clock, MapPin, Users, ArrowLeft, Edit, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 
 interface Event {
     id: number;
@@ -22,6 +23,8 @@ interface EventsShowProps {
 }
 
 export default function EventsShow({ event }: EventsShowProps) {
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    
     const statusColors = {
         upcoming: 'bg-blue-100 text-blue-800',
         ongoing: 'bg-green-100 text-green-800',
@@ -53,6 +56,14 @@ export default function EventsShow({ event }: EventsShowProps) {
             hour: 'numeric',
             minute: '2-digit',
             hour12: true,
+        });
+    }
+
+    function handleDelete() {
+        router.delete(route('events.destroy', event.id), {
+            onSuccess: () => {
+                // Redirect to events index after successful deletion
+            },
         });
     }
 
@@ -232,11 +243,7 @@ export default function EventsShow({ event }: EventsShowProps) {
                                         Edit
                                     </Link>
                                     <button
-                                        onClick={() => {
-                                            if (confirm('Are you sure you want to delete this event?')) {
-                                                // Handle delete
-                                            }
-                                        }}
+                                        onClick={() => setShowDeleteModal(true)}
                                         className="flex-1 flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                                     >
                                         <Trash2 className="h-4 w-4 mr-2" />
@@ -248,6 +255,32 @@ export default function EventsShow({ event }: EventsShowProps) {
                     </div>
                 </div>
             </div>
+
+            {/* Delete Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 bg-gray-500/50 backdrop-filter backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                        <h3 className="text-lg font-semibold mb-4">Delete Event</h3>
+                        <p className="text-gray-600 mb-6">
+                            Are you sure you want to delete "{event.title}"? This action cannot be undone.
+                        </p>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={() => setShowDeleteModal(false)}
+                                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }  

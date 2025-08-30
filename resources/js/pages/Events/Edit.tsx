@@ -65,6 +65,7 @@ export default function EventsEdit({ event }: EventsEditProps) {
         e.preventDefault();
         
         const formData = new FormData();
+        formData.append('_method', 'PUT');
         Object.entries(data).forEach(([key, value]) => {
             if (key === 'tags') {
                 (value as string[]).forEach((tag, index) => {
@@ -75,7 +76,7 @@ export default function EventsEdit({ event }: EventsEditProps) {
             }
         });
 
-        router.put(route('events.update', event.id), formData, {
+        router.post(route('events.update', event.id), formData, {
             forceFormData: true,
         });
     }
