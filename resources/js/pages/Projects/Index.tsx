@@ -36,6 +36,7 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List' }: P
         'bg-pink-100 text-pink-800',
         'bg-violet-100 text-violet-800',
         'bg-neutral-100 text-neutral-800',
+        'bg-neutral-100 text-neutral-800',
     ];
 
     // Close dropdown when clicking outside
