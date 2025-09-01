@@ -1,12 +1,12 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
 import { useState, type FormEvent, useEffect } from 'react';
-import { Eye, Trash2, Pencil, MoreVertical, Calendar, Clock, MapPin, Users } from 'lucide-react';
+import { Eye, Trash2, Pencil, MoreVertical, Calendar, Clock, MapPin, Users, Plus, Grid3X3, List, CalendarDays } from 'lucide-react';
+import { motion, AnimatePresence } from "framer-motion";
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-
 
 interface EventsIndexProps {
     events: { data: Event[]; links: any[] };
@@ -40,20 +40,20 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
     const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
 
     const statusColors = {
-        upcoming: 'bg-blue-100 text-blue-800',
-        ongoing: 'bg-green-100 text-green-800',
-        completed: 'bg-orange-100 text-orange-800',
-        cancelled: 'bg-red-100 text-red-800'
+        upcoming: 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white',
+        ongoing: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white',
+        completed: 'bg-gradient-to-r from-orange-500 to-red-600 text-white',
+        cancelled: 'bg-gradient-to-r from-red-500 to-pink-600 text-white'
     };
 
     const tagColors = [
-        'bg-yellow-100 text-yellow-800',
-        'bg-green-100 text-green-800',
-        'bg-blue-100 text-blue-800',
-        'bg-purple-100 text-purple-800',
-        'bg-pink-100 text-pink-800',
-        'bg-violet-100 text-violet-800',
-        'bg-neutral-100 text-neutral-800'
+        'bg-gradient-to-r from-yellow-400 to-orange-500 text-white',
+        'bg-gradient-to-r from-green-400 to-emerald-500 text-white',
+        'bg-gradient-to-r from-blue-400 to-indigo-500 text-white',
+        'bg-gradient-to-r from-purple-400 to-violet-500 text-white',
+        'bg-gradient-to-r from-pink-400 to-rose-500 text-white',
+        'bg-gradient-to-r from-indigo-400 to-purple-500 text-white',
+        'bg-gradient-to-r from-gray-400 to-slate-500 text-white'
     ];
 
     // Close dropdown when clicking outside
@@ -211,7 +211,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
         switch (status) {
             case 'upcoming': return '#3B82F6'; // blue
             case 'ongoing': return '#10B981'; // green
-            case 'completed': return '#9F3020'; // brown
+            case 'completed': return '#F59E0B'; // amber
             case 'cancelled': return '#EF4444'; // red
             default: return '#3B82F6'; // blue
         }
@@ -221,7 +221,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
         switch (status) {
             case 'upcoming': return '#EFF6FF'; // light blue
             case 'ongoing': return '#ECFDF5'; // light green
-            case 'completed': return '#FFEDD4'; // light gray
+            case 'completed': return '#FFFBEB'; // light amber
             case 'cancelled': return '#FEF2F2'; // light red
             default: return '#EFF6FF'; // light blue
         }
@@ -231,660 +231,705 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
         switch (status) {
             case 'upcoming': return '#1E40AF'; // dark blue
             case 'ongoing': return '#065F46'; // dark green
-            case 'completed': return '#374151'; // dark gray
+            case 'completed': return '#92400E'; // dark amber
             case 'cancelled': return '#991B1B'; // dark red
             default: return '#1E40AF'; // dark blue
         }
-
     }
 
     return (
         <AppLayout user={user}>
             <Head title="Events" />
 
-            <div className="p-4 space-y-6">
-                <div className="flex gap-2 border-b">
-                    {tabs.map(tab => (
-                        <button
-                            key={tab}
-                            className={`px-4 py-2 -mb-px border-b-2 ${activeTab === tab ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-600 hover:text-gray-900'}`}
-                            onClick={() => {
-                                setActiveTab(tab);
-                                router.get(route('events.index'), { tab }, {
-                                    preserveState: true,
-                                    preserveScroll: true
-                                });
-                            }}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
+                {/* Floating Background Elements */}
+                <motion.div
+                    initial={{ y: -50, opacity: 0 }}
+                    animate={{ y: [0, -20, 0], opacity: 1 }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    className="fixed top-20 left-10 w-20 h-20 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 shadow-2xl blur-lg -z-10"
+                />
+                <motion.div
+                    initial={{ x: 50, opacity: 0 }}
+                    animate={{ x: [0, 20, 0], opacity: 1 }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                    className="fixed bottom-20 right-10 w-28 h-28 rounded-3xl bg-gradient-to-tr from-indigo-400 to-purple-600 shadow-xl blur-md rotate-12 -z-10"
+                />
 
-                {/* Create Tab */}
-                {activeTab === 'Create' && (
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <h2 className="text-xl font-semibold mb-4">Create New Event</h2>
-                        <form onSubmit={submitCreate} className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Title *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.title}
-                                        onChange={(e) => setData('title', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                    {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
-                                </div>
+                <div className="max-w-7xl mx-auto space-y-6">
+                    {/* Header */}
+                    <motion.div
+                        initial={{ y: -30, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.6 }}
+                        className="text-center mb-8"
+                    >
+                        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Event Management</h1>
+                        <p className="text-gray-600 text-lg">Create, manage, and track your events</p>
+                    </motion.div>
 
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Organizer *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.organizer}
-                                        onChange={(e) => setData('organizer', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                    {errors.organizer && <p className="text-red-500 text-sm mt-1">{errors.organizer}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Event Date *
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={data.event_date}
-                                        onChange={(e) => setData('event_date', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                    {errors.event_date && <p className="text-red-500 text-sm mt-1">{errors.event_date}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Start Time *
-                                    </label>
-                                    <input
-                                        type="time"
-                                        value={data.start_time}
-                                        onChange={(e) => setData('start_time', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                    {errors.start_time && <p className="text-red-500 text-sm mt-1">{errors.start_time}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        End Time
-                                    </label>
-                                    <input
-                                        type="time"
-                                        value={data.end_time}
-                                        onChange={(e) => setData('end_time', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                    {errors.end_time && <p className="text-red-500 text-sm mt-1">{errors.end_time}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Location *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={data.location}
-                                        onChange={(e) => setData('location', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    />
-                                    {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Capacity
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={data.capacity}
-                                        onChange={(e) => setData('capacity', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        min="1"
-                                    />
-                                    {errors.capacity && <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Status *
-                                    </label>
-                                    <select
-                                        value={data.status}
-                                        onChange={(e) => setData('status', e.target.value)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        required
-                                    >
-                                        <option value="upcoming">Upcoming</option>
-                                        <option value="ongoing">Ongoing</option>
-                                        <option value="completed">Completed</option>
-                                        <option value="cancelled">Cancelled</option>
-                                    </select>
-                                    {errors.status && <p className="text-red-500 text-sm mt-1">{errors.status}</p>}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Image
-                                    </label>
-                                    <input
-                                        type="file"
-                                        onChange={(e) => setData('image', e.target.files?.[0] || null)}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                        accept="image/*"
-                                    />
-                                    {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Description
-                                </label>
-                                <textarea
-                                    value={data.description}
-                                    onChange={(e) => setData('description', e.target.value)}
-                                    rows={3}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
-                                {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">
-                                    Tags
-                                </label>
-                                <div className="flex flex-wrap gap-2 mb-2">
-                                    {data.tags.map((tag: string, index: number) => (
-                                        <span
-                                            key={index}
-                                            className={`px-2 py-1 rounded-full text-xs font-medium ${tagColors[index % tagColors.length]}`}
-                                        >
-                                            {tag}
-                                            <button
-                                                type="button"
-                                                onClick={() => removeTag(tag)}
-                                                className="ml-1 hover:text-red-600"
-                                            >
-                                                ×
-                                            </button>
-                                        </span>
-                                    ))}
-                                </div>
-                                <div className="flex gap-2">
-                                <input
-                                    type="text"
-                                    placeholder="Add a tag and press Enter"
-                                    onKeyPress={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            handleAddTag(e.currentTarget.value);
-                                            e.currentTarget.value = '';
-                                        }
+                    {/* Tab Navigation */}
+                    <motion.div
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                        className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-2"
+                    >
+                        <div className="flex gap-2">
+                            {tabs.map((tab, index) => (
+                                <motion.button
+                                    key={tab}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                                    className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                                        activeTab === tab 
+                                            ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg' 
+                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                    }`}
+                                    onClick={() => {
+                                        setActiveTab(tab);
+                                        router.get(route('events.index'), { tab }, {
+                                            preserveState: true,
+                                            preserveScroll: true
+                                        });
                                     }}
-                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                                            if (input && input.value.trim()) {
-                                                handleAddTag(input.value.trim());
-                                                input.value = '';
-                                            }
-                                        }}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                                    >
-                                        Add
-                                    </button>
-                                </div>
-                                {errors.tags && <p className="text-red-500 text-sm mt-1">{errors.tags}</p>}
-                            </div>
-
-                            <div className="flex justify-end">
-                                <button
-                                    type="submit"
-                                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
-                                    Create Event
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                )}
-
-                {activeTab === 'List' && (
-                    <div className="bg-white rounded-lg shadow p-4 sm:p-6">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                            <h2 className="text-xl font-semibold">Events</h2>
-                            <button
-                                className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
-                                onClick={() => setActiveTab('Create')}
-                            >
-                                New Event
-                            </button>
+                                    {tab === 'Create' && <Plus className="w-4 h-4 inline mr-2" />}
+                                    {tab === 'List' && <List className="w-4 h-4 inline mr-2" />}
+                                    {tab === 'Cards' && <Grid3X3 className="w-4 h-4 inline mr-2" />}
+                                    {tab === 'Calendar' && <CalendarDays className="w-4 h-4 inline mr-2" />}
+                                    {tab}
+                                </motion.button>
+                            ))}
                         </div>
-                        <div>
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Event
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Date & Time
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Location
-                                        </th>
-                                        {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status
-                                        </th> */}
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Organizer
-                                        </th>
-                                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Actions
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {events.data.map((event) => (
-                                        <tr key={event.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="flex items-center">
-                                                    {event.image_url && (
-                                                        <img
-                                                            className="h-10 w-10 rounded-lg object-cover mr-3"
-                                                            src={event.image_url}
-                                                            alt={event.title}
-                                                        />
-                                                    )}
-                                                    <div>
-                                                        <div className="text-sm font-medium text-gray-900">
-                                                            {event.title}
+                    </motion.div>
+
+                    <AnimatePresence mode="wait">
+                        {/* Create Tab */}
+                        {activeTab === 'Create' && (
+                            <motion.div
+                                key="create"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.5 }}
+                                className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-8"
+                            >
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <Plus className="w-6 h-6 mr-3 text-blue-600" />
+                                    {editingId ? 'Edit Event' : 'Create New Event'}
+                                </h2>
+                                <form onSubmit={editingId ? submitEdit : submitCreate} className="space-y-6">
+                                    <div className="grid md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Event Title *</label>
+                                            <input
+                                                type="text"
+                                                value={data.title}
+                                                onChange={(e) => setData('title', e.target.value)}
+                                                className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                placeholder="Enter event title"
+                                                required
+                                            />
+                                            {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Organizer *</label>
+                                            <input
+                                                type="text"
+                                                value={data.organizer}
+                                                onChange={(e) => setData('organizer', e.target.value)}
+                                                className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                placeholder="Enter organizer name"
+                                                required
+                                            />
+                                            {errors.organizer && <p className="text-red-500 text-sm mt-1">{errors.organizer}</p>}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Event Date *</label>
+                                            <input
+                                                type="date"
+                                                value={data.event_date}
+                                                onChange={(e) => setData('event_date', e.target.value)}
+                                                className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                required
+                                            />
+                                            {errors.event_date && <p className="text-red-500 text-sm mt-1">{errors.event_date}</p>}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Start Time *</label>
+                                            <input
+                                                type="time"
+                                                value={data.start_time}
+                                                onChange={(e) => setData('start_time', e.target.value)}
+                                                className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                required
+                                            />
+                                            {errors.start_time && <p className="text-red-500 text-sm mt-1">{errors.start_time}</p>}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">End Time</label>
+                                            <input
+                                                type="time"
+                                                value={data.end_time}
+                                                onChange={(e) => setData('end_time', e.target.value)}
+                                                className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                            />
+                                            {errors.end_time && <p className="text-red-500 text-sm mt-1">{errors.end_time}</p>}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Location *</label>
+                                            <input
+                                                type="text"
+                                                value={data.location}
+                                                onChange={(e) => setData('location', e.target.value)}
+                                                className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                placeholder="Enter event location"
+                                                required
+                                            />
+                                            {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Capacity</label>
+                                            <input
+                                                type="number"
+                                                value={data.capacity}
+                                                onChange={(e) => setData('capacity', e.target.value)}
+                                                className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                placeholder="Maximum attendees"
+                                                min="1"
+                                            />
+                                            {errors.capacity && <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Status *</label>
+                                            <select
+                                                value={data.status}
+                                                onChange={(e) => setData('status', e.target.value)}
+                                                className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                required
+                                            >
+                                                <option value="upcoming">Upcoming</option>
+                                                <option value="ongoing">Ongoing</option>
+                                                <option value="completed">Completed</option>
+                                                <option value="cancelled">Cancelled</option>
+                                            </select>
+                                            {errors.status && <p className="text-red-500 text-sm mt-1">{errors.status}</p>}
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Event Image</label>
+                                            <input
+                                                type="file"
+                                                onChange={(e) => setData('image', e.target.files?.[0] || null)}
+                                                className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                                accept="image/*"
+                                            />
+                                            {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                                        <textarea
+                                            value={data.description}
+                                            onChange={(e) => setData('description', e.target.value)}
+                                            rows={4}
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                            placeholder="Describe your event..."
+                                        />
+                                        {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Tags</label>
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {data.tags.map((tag: string, index: number) => (
+                                                <motion.span
+                                                    key={index}
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    className={`px-3 py-2 rounded-full text-sm font-medium ${tagColors[index % tagColors.length]} flex items-center`}
+                                                >
+                                                    {tag}
+                                                    <motion.button
+                                                        type="button"
+                                                        whileHover={{ scale: 1.2 }}
+                                                        whileTap={{ scale: 0.8 }}
+                                                        onClick={() => removeTag(tag)}
+                                                        className="ml-2 hover:text-red-200 font-bold"
+                                                    >
+                                                        ×
+                                                    </motion.button>
+                                                </motion.span>
+                                            ))}
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                placeholder="Add a tag and press Enter"
+                                                onKeyPress={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                        handleAddTag(e.currentTarget.value);
+                                                        e.currentTarget.value = '';
+                                                    }
+                                                }}
+                                                className="flex-1 p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                            />
+                                            <motion.button
+                                                type="button"
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                onClick={(e) => {
+                                                    const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                                    if (input && input.value.trim()) {
+                                                        handleAddTag(input.value.trim());
+                                                        input.value = '';
+                                                    }
+                                                }}
+                                                className="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
+                                            >
+                                                Add
+                                            </motion.button>
+                                        </div>
+                                        {errors.tags && <p className="text-red-500 text-sm mt-1">{errors.tags}</p>}
+                                    </div>
+
+                                    <div className="flex gap-4">
+                                        <motion.button
+                                            type="submit"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                            className="px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all"
+                                        >
+                                            {editingId ? 'Update Event' : 'Create Event'}
+                                        </motion.button>
+                                        {editingId && (
+                                            <motion.button
+                                                type="button"
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={cancelEdit}
+                                                className="px-8 py-4 bg-gray-200 text-gray-700 rounded-xl font-semibold hover:bg-gray-300 transition-all"
+                                            >
+                                                Cancel
+                                            </motion.button>
+                                        )}
+                                    </div>
+                                </form>
+                            </motion.div>
+                        )}
+
+                        {/* List Tab */}
+                        {activeTab === 'List' && (
+                            <motion.div
+                                key="list"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.5 }}
+                                className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-8"
+                            >
+                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                                    <h2 className="text-2xl font-bold text-gray-900">All Events</h2>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center"
+                                        onClick={() => setActiveTab('Create')}
+                                    >
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        New Event
+                                    </motion.button>
+                                </div>
+
+                                <div className="overflow-x-auto">
+                                    <table className="w-full border-collapse">
+                                        <thead>
+                                            <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
+                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Event</th>
+                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date & Time</th>
+                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Location</th>
+                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Organizer</th>
+                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {events.data.map((event, index) => (
+                                                <motion.tr
+                                                    key={event.id}
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                                                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center">
+                                                            {event.image_url ? (
+                                                                <img
+                                                                    className="h-12 w-12 rounded-xl object-cover shadow-md mr-4"
+                                                                    src={event.image_url}
+                                                                    alt={event.title}
+                                                                />
+                                                            ) : (
+                                                                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center shadow-md mr-4">
+                                                                    <Calendar className="w-6 h-6 text-gray-500" />
+                                                                </div>
+                                                            )}
+                                                            <div>
+                                                                <div className="font-semibold text-gray-900">{event.title}</div>
+                                                                {event.description && (
+                                                                    <div className="text-sm text-gray-500 truncate max-w-xs">
+                                                                        {event.description}
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
-                                                        {event.description && (
-                                                            <div className="text-sm text-gray-500 truncate max-w-xs">
-                                                                {event.description}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="text-sm text-gray-900">{formatDate(event.event_date)}</div>
+                                                        <div className="text-sm text-gray-500">
+                                                            {formatTime(event.start_time)}
+                                                            {event.end_time && ` - ${formatTime(event.end_time)}`}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="text-sm text-gray-900">{event.location}</div>
+                                                        {event.capacity && (
+                                                            <div className="text-sm text-gray-500">
+                                                                Capacity: {event.capacity}
                                                             </div>
                                                         )}
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">
+                                                    </td>
+                                                    <td className="px-6 py-4 text-sm text-gray-900">{event.organizer}</td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <motion.button
+                                                                whileHover={{ scale: 1.1 }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                            >
+                                                                <Link href={route('events.show', event.id)}>
+                                                                    <Eye className="w-4 h-4" />
+                                                                </Link>
+                                                            </motion.button>
+                                                            <motion.button
+                                                                whileHover={{ scale: 1.1 }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                            >
+                                                                <Link href={route('events.edit', event.id)}>
+                                                                    <Pencil className="w-4 h-4" />
+                                                                </Link>
+                                                            </motion.button>
+                                                            <motion.button
+                                                                whileHover={{ scale: 1.1 }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                onClick={() => handleDelete(event)}
+                                                            >
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </motion.button>
+                                                        </div>
+                                                    </td>
+                                                </motion.tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {/* Cards Tab */}
+                        {activeTab === 'Cards' && (
+                            <motion.div
+                                key="cards"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.5 }}
+                                className="grid md:grid-cols-2 xl:grid-cols-3 gap-6"
+                            >
+                                {allEvents.map((event, index) => (
+                                    <motion.div
+                                        key={event.id}
+                                        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                                        whileHover={{ y: -5, scale: 1.02 }}
+                                        className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden group"
+                                    >
+                                        {event.image_url ? (
+                                            <motion.img
+                                                whileHover={{ scale: 1.05 }}
+                                                className="w-full h-48 object-cover"
+                                                src={event.image_url}
+                                                alt={event.title}
+                                            />
+                                        ) : (
+                                            <div className="w-full h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                                                <Calendar className="w-16 h-16 text-gray-500" />
+                                            </div>
+                                        )}
+                                        
+                                        <div className="p-6">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h3 className="text-xl font-bold text-gray-900 truncate">{event.title}</h3>
+                                                <span className={`px-3 py-1 text-xs font-semibold rounded-full ${statusColors[event.status]}`}>
+                                                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
+                                                </span>
+                                            </div>
+
+                                            {event.description && (
+                                                <p className="text-gray-600 text-sm mb-4 line-clamp-2">{event.description}</p>
+                                            )}
+
+                                            <div className="space-y-3 mb-4">
+                                                <div className="flex items-center text-sm text-gray-500">
+                                                    <Calendar className="h-4 w-4 mr-2" />
                                                     {formatDate(event.event_date)}
                                                 </div>
-                                                <div className="text-sm text-gray-500">
+                                                <div className="flex items-center text-sm text-gray-500">
+                                                    <Clock className="h-4 w-4 mr-2" />
                                                     {formatTime(event.start_time)}
                                                     {event.end_time && ` - ${formatTime(event.end_time)}`}
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-900">{event.location}</div>
+                                                <div className="flex items-center text-sm text-gray-500">
+                                                    <MapPin className="h-4 w-4 mr-2" />
+                                                    {event.location}
+                                                </div>
                                                 {event.capacity && (
-                                                    <div className="text-sm text-gray-500">
+                                                    <div className="flex items-center text-sm text-gray-500">
+                                                        <Users className="h-4 w-4 mr-2" />
                                                         Capacity: {event.capacity}
                                                     </div>
                                                 )}
-                                            </td>
-                                            {/* <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[event.status]}`}>
-                                                    {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                                                </span>
-                                            </td> */}
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                {event.organizer}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                <div className="relative dropdown-container">
-                                                    <button
-                                                        onClick={() => setOpenDropdown(openDropdown === event.id ? null : (event.id || null))}
-                                                        className="cursor-pointer text-gray-400 hover:text-gray-600"
-                                                    >
-                                                        <MoreVertical className="h-4 w-4" />
-                                                    </button>
-                                                    {openDropdown === event.id && (
-                                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border">
-                                                            <div className="py-1">
-                                                                <Link
-                                                                    href={route('events.show', event.id)}
-                                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                >
-                                                                    <Eye className="h-4 w-4 mr-2" />
-                                                                    View
-                                                                </Link>
-                                                                <Link
-                                                                    href={route('events.edit', event.id)}
-                                                                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                >
-                                                                    <Pencil className="h-4 w-4 mr-2" />
-                                                                    Edit
-                                                                </Link>
-                                                                <button
-                                                                    onClick={() => handleDelete(event)}
-                                                                    className="cursor-pointer flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                                                >
-                                                                    <Trash2 className="h-4 w-4 mr-2" />
-                                                                    Delete
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )}
-
-                {/* Cards Tab */}
-                {activeTab === 'Cards' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {allEvents.map((event) => (
-                            <div key={event.id} className="bg-white rounded-lg shadow overflow-hidden">
-                                {event.image_url && (
-                                    <img
-                                        className="w-full h-48 object-cover"
-                                        src={event.image_url}
-                                        alt={event.title}
-                                    />
-                                )}
-                                <div className="p-6">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <h3 className="text-lg font-semibold text-gray-900 truncate">
-                                            {event.title}
-                                        </h3>
-                                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${statusColors[event.status]}`}>
-                                            {event.status.charAt(0).toUpperCase() + event.status.slice(1)}
-                                        </span>
-                                    </div>
-
-                                    {event.description && (
-                                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                                            {event.description}
-                                        </p>
-                                    )}
-
-                                    <div className="space-y-2 mb-4">
-                                        <div className="flex items-center text-sm text-gray-500">
-                                            <Calendar className="h-4 w-4 mr-2" />
-                                            {formatDate(event.event_date)}
-                                        </div>
-                                        <div className="flex items-center text-sm text-gray-500">
-                                            <Clock className="h-4 w-4 mr-2" />
-                                            {formatTime(event.start_time)}
-                                            {event.end_time && ` - ${formatTime(event.end_time)}`}
-                                        </div>
-                                        <div className="flex items-center text-sm text-gray-500">
-                                            <MapPin className="h-4 w-4 mr-2" />
-                                            {event.location}
-                                        </div>
-                                        {event.capacity && (
-                                            <div className="flex items-center text-sm text-gray-500">
-                                                <Users className="h-4 w-4 mr-2" />
-                                                Capacity: {event.capacity}
                                             </div>
-                                        )}
-                                    </div>
 
-                                    {event.tags && event.tags.length > 0 && (
-                                        <div className="flex flex-wrap gap-1 mb-4">
-                                            {event.tags.map((tag, index) => (
-                                                <span
-                                                    key={index}
-                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${tagColors[index % tagColors.length]}`}
-                                                >
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    )}
-
-                                    <div className="flex items-center justify-between">
-                                        <span className="text-sm text-gray-500">by {event.organizer}</span>
-                                        <div className="flex space-x-2">
-                                            <Link
-                                                href={route('events.show', event.id)}
-                                                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                                            >
-                                                View Details
-                                            </Link>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Calendar Tab */}
-                {activeTab === 'Calendar' && (
-                    <div className="container mx-auto p-4">
-
-                    {/* User Name */}
-                    {/* <p>{user.name}</p> */}
-
-                        <div className="flex items-center gap-2 mb-4 justify">
-                            {/* <div className={`w-4 h-4 rounded-md ${statusColors.upcoming}`}></div> */}
-                            <p className={`text-sm p-2 ${statusColors.upcoming}`}>Upcoming</p>
-                            {/* <div className={`w-4 h-4 rounded-md ${statusColors.ongoing}`}></div> */}
-                            <p className={`text-sm p-2 ${statusColors.ongoing}`}>Ongoing</p>
-                            {/* <div className={`w-4 h-4 rounded-md ${statusColors.completed}`}></div> */}
-                            <p className={`text-sm p-2 ${statusColors.completed}`}>Completed</p>
-                            {/* <div className={`w-4 h-4 rounded-md ${statusColors.cancelled}`}></div> */}
-                            <p className={`text-sm p-2 ${statusColors.cancelled}`}>Cancelled</p>
-                        </div>
-                        <div className="grid grid-cols-12 gap-4">
-                            {/* Calendar Column - 8/12 */}
-                            <div className="col-span-12 md:col-span-8 bg-white rounded-lg shadow p-4 sm:p-6">
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-                                    <h2 className="text-xl font-semibold">Calendar View</h2>
-                                    <button
-                                        className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
-                                        onClick={() => setActiveTab('Create')}
-                                    >
-                                        New Event
-                                    </button>
-                                </div>
-                                <div className="my-calendar-container">
-                                    <FullCalendar
-                                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                                        initialView="dayGridMonth"
-                                        headerToolbar={{
-                                            left: 'prev,next today',
-                                            center: 'title',
-                                            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-                                        }}
-                                        weekends={true}
-                                        events={allEvents.map(event => {
-                                            let startDate, endDate;
-                                            try {
-                                                startDate = event.event_date.includes('T')
-                                                    ? event.event_date
-                                                    : `${event.event_date}T${event.start_time}`;
-                                                endDate = event.end_time
-                                                    ? (event.event_date.includes('T')
-                                                        ? event.event_date.replace(/T.*/, `T${event.end_time}`)
-                                                        : `${event.event_date}T${event.end_time}`)
-                                                    : undefined;
-                                                startDate = new Date(startDate).toISOString();
-                                                if (endDate) endDate = new Date(endDate).toISOString();
-                                            } catch {
-                                                startDate = event.event_date;
-                                                endDate = event.end_time ? `${event.event_date}T${event.end_time}` : undefined;
-                                            }
-                                            return {
-                                                id: event.id?.toString(),
-                                                title: event.title,
-                                                start: startDate,
-                                                end: endDate,
-                                                backgroundColor: getEventColor(event.status),
-                                                borderColor: getEventColor(event.status),
-                                                textColor: '#ffffff'
-                                            };
-                                        })}
-                                        eventClick={(info) => {
-                                            if (info.event.id) router.visit(route('events.show', info.event.id));
-                                        }}
-                                        height="auto"
-                                        dayMaxEvents={true}
-                                        moreLinkClick="popover"
-                                        eventDisplay="block"
-                                        eventTimeFormat={{ hour: 'numeric', minute: '2-digit', hour12: true }}
-                                        slotMinTime="00:00:00"
-                                        slotMaxTime="23:59:59"
-                                        nowIndicator={true}
-                                        editable={false}
-                                        selectable={false}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Event List Column - 4/12 */}
-                            <div className="col-span-12 md:col-span-4 bg-white rounded-lg shadow p-4 sm:p-6">
-                                <h2 className="text-xl font-semibold mb-4">Event List</h2>
-                                <div className="h-150 overflow-y-auto">
-                                    <ul className="space-y-3">
-                                        {allEvents.map((event) => {
-                                            const statusColor = getEventColor(event.status);
-                                            const bgColor = getEventBgColor(event.status);
-                                            const textColor = getEventTextColor(event.status);
-                                            
-                                            return (
-                                                <div className="list-table">
-                                                <li key={event.id} 
-                                                    className={`border-l-6 p-4 rounded-lg flex justify-between items-center cursor-pointer transition-colors hover:opacity-80`}
-                                                    style={{
-                                                        borderLeftColor: statusColor,
-                                                        backgroundColor: bgColor,
-                                                        }}>
-
-                                                    <div>
-                                                        <p className={`font-medium ${textColor}`}>{event.title}</p>
-                                                            <p className={`text-sm ${textColor} opacity-80, flex items-center gap-2`}>
-                                                            {event.event_date} 
-                                                                {/* {event.image_url && (
-                                                                    <img
-                                                                        className="h-10 w-10 rounded-lg object-cover mr-3"
-                                                                        src={event.image_url}
-                                                                        alt={event.title}
-                                                                    />
-                                                                )} */}
-                                                        </p>
-                                                    </div>
-                                                        <div className="">
-
-
-                                                            <div className="relative group inline-block">
-                                                                <button
-                                                                    onClick={() => handleDelete(event)}
-                                                                    className="cursor-pointer flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-                                                                >
-                                                                    <Trash2 className="h-4 w-4 mr-2" />
-                                                                </button>
-                                                                <div className="absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 hidden group-hover:flex 
-                                                                            items-center">
-
-                                                                    <div className="bg-gray-800 text-white text-sm px-3 py-1 rounded-lg shadow-lg relative">
-                                                                        Delete
-                                                                        <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 
-                                                                                w-3 h-3 bg-gray-800 rotate-45"></div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-
-                                                            <div className="relative group inline-block">
-                                                                <Link
-                                                                    href={route('events.show', event.id)}
-                                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                                                >
-                                                                    <Eye className="h-4 w-4 mr-2" />
-                                                                </Link>
-                                                                <div className="absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 hidden group-hover:flex 
-                                                                            items-center">
-
-                                                                    <div className="bg-gray-800 text-white text-sm px-3 py-1 rounded-lg shadow-lg relative">
-                                                                        View
-                                                                        <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 
-                                                                                w-3 h-3 bg-gray-800 rotate-45"></div>
-                                                                    </div>
-                                                                </div>
-
-                                                            </div>
-
-                                                        </div>
-                                                </li>
-                                                    {/* <div className="img">
-                                                    {event.image_url && (
-                                                        <img
-                                                            className="h-10 w-10 rounded-lg object-cover mr-3"
-                                                            src={event.image_url}
-                                                            alt={event.title}
-                                                        />
-                                                    )}
-                                                    </div> */}
+                                            {event.tags && event.tags.length > 0 && (
+                                                <div className="flex flex-wrap gap-2 mb-4">
+                                                    {event.tags.map((tag, tagIndex) => (
+                                                        <span
+                                                            key={tagIndex}
+                                                            className={`px-3 py-1 text-xs font-semibold rounded-full ${tagColors[tagIndex % tagColors.length]}`}
+                                                        >
+                                                            {tag}
+                                                        </span>
+                                                    ))}
                                                 </div>
-                                            );
-                                        })}
-                                    </ul>
+                                            )}
+
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-sm text-gray-500">by {event.organizer}</span>
+                                                <Link
+                                                    href={route('events.show', event.id)}
+                                                    className="text-blue-600 hover:text-blue-800 text-sm font-semibold"
+                                                >
+                                                    View Details
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        )}
+
+                        {/* Calendar Tab */}
+                        {activeTab === 'Calendar' && (
+                            <motion.div
+                                key="calendar"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.5 }}
+                                className="space-y-6"
+                            >
+                                <div className="flex items-center gap-4 justify-center mb-6">
+                                    <span className={`text-sm p-2 rounded-lg ${statusColors.upcoming}`}>Upcoming</span>
+                                    <span className={`text-sm p-2 rounded-lg ${statusColors.ongoing}`}>Ongoing</span>
+                                    <span className={`text-sm p-2 rounded-lg ${statusColors.completed}`}>Completed</span>
+                                    <span className={`text-sm p-2 rounded-lg ${statusColors.cancelled}`}>Cancelled</span>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
 
-                )}
-            </div>
+                                <div className="grid grid-cols-12 gap-6">
+                                    {/* Calendar Column */}
+                                    <div className="col-span-12 lg:col-span-8 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-6">
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                                            <h2 className="text-2xl font-bold text-gray-900">Calendar View</h2>
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center"
+                                                onClick={() => setActiveTab('Create')}
+                                            >
+                                                <Plus className="w-4 h-4 mr-2" />
+                                                New Event
+                                            </motion.button>
+                                        </div>
+                                        <div className="my-calendar-container">
+                                            <FullCalendar
+                                                plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                                                initialView="dayGridMonth"
+                                                headerToolbar={{
+                                                    left: 'prev,next today',
+                                                    center: 'title',
+                                                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                                                }}
+                                                weekends={true}
+                                                events={allEvents.map(event => {
+                                                    let startDate, endDate;
+                                                    try {
+                                                        startDate = event.event_date.includes('T')
+                                                            ? event.event_date
+                                                            : `${event.event_date}T${event.start_time}`;
+                                                        endDate = event.end_time
+                                                            ? (event.event_date.includes('T')
+                                                                ? event.event_date.replace(/T.*/, `T${event.end_time}`)
+                                                                : `${event.event_date}T${event.end_time}`)
+                                                            : undefined;
+                                                        startDate = new Date(startDate).toISOString();
+                                                        if (endDate) endDate = new Date(endDate).toISOString();
+                                                    } catch {
+                                                        startDate = event.event_date;
+                                                        endDate = event.end_time ? `${event.event_date}T${event.end_time}` : undefined;
+                                                    }
+                                                    return {
+                                                        id: event.id?.toString(),
+                                                        title: event.title,
+                                                        start: startDate,
+                                                        end: endDate,
+                                                        backgroundColor: getEventColor(event.status),
+                                                        borderColor: getEventColor(event.status),
+                                                        textColor: '#ffffff'
+                                                    };
+                                                })}
+                                                eventClick={(info) => {
+                                                    if (info.event.id) router.visit(route('events.show', info.event.id));
+                                                }}
+                                                height="auto"
+                                                dayMaxEvents={true}
+                                                moreLinkClick="popover"
+                                                eventDisplay="block"
+                                                eventTimeFormat={{ hour: 'numeric', minute: '2-digit', hour12: true }}
+                                                slotMinTime="00:00:00"
+                                                slotMaxTime="23:59:59"
+                                                nowIndicator={true}
+                                                editable={false}
+                                                selectable={false}
+                                            />
+                                        </div>
+                                    </div>
 
-            {/* Delete Modal */}
-            {showDeleteModal && (
-                <div className="fixed inset-0 bg-gray-500/50 backdrop-filter backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-                        <h3 className="text-lg font-semibold mb-4">Delete Event</h3>
-                        <p className="text-gray-600 mb-6">
-                            Are you sure you want to delete "{eventToDelete?.title}"? This action cannot be undone.
-                        </p>
-                        <div className="flex justify-end space-x-3">
-                            <button
-                                onClick={() => setShowDeleteModal(false)}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={confirmDelete}
-                                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
-                            >
-                                Delete
-                            </button>
-                        </div>
-                    </div>
+                                    {/* Event List Column */}
+                                    <div className="col-span-12 lg:col-span-4 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-6">
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-6">Event List</h2>
+                                        <div className="h-96 overflow-y-auto">
+                                            <ul className="space-y-3">
+                                                {allEvents.map((event, index) => {
+                                                    const statusColor = getEventColor(event.status);
+                                                    const bgColor = getEventBgColor(event.status);
+                                                    const textColor = getEventTextColor(event.status);
+                                                    
+                                                    return (
+                                                        <motion.li
+                                                            key={event.id}
+                                                            initial={{ opacity: 0, x: 20 }}
+                                                            animate={{ opacity: 1, x: 0 }}
+                                                            transition={{ duration: 0.5, delay: index * 0.1 }}
+                                                            className={`border-l-4 p-4 rounded-xl flex justify-between items-center cursor-pointer transition-all hover:scale-105`}
+                                                            style={{
+                                                                borderLeftColor: statusColor,
+                                                                backgroundColor: bgColor,
+                                                            }}
+                                                        >
+                                                            <div>
+                                                                <p className={`font-semibold ${textColor}`}>{event.title}</p>
+                                                                <p className={`text-sm ${textColor} opacity-80`}>
+                                                                    {event.event_date}
+                                                                </p>
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    onClick={() => handleDelete(event)}
+                                                                    className="p-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                </motion.button>
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    className="p-1 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                >
+                                                                    <Link href={route('events.show', event.id)}>
+                                                                        <Eye className="h-4 w-4" />
+                                                                    </Link>
+                                                                </motion.button>
+                                                            </div>
+                                                        </motion.li>
+                                                    );
+                                                })}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </div>
-            )}
+
+                {/* Delete Modal */}
+                <AnimatePresence>
+                    {showDeleteModal && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+                        >
+                            <motion.div
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.9, opacity: 0 }}
+                                className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl"
+                            >
+                                <h3 className="text-xl font-bold text-gray-900 mb-4">Confirm Delete</h3>
+                                <p className="text-gray-600 mb-6">
+                                    Are you sure you want to delete "{eventToDelete?.title}"? This action cannot be undone.
+                                </p>
+                                <div className="flex gap-4 justify-end">
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setShowDeleteModal(false)}
+                                        className="px-6 py-3 text-gray-700 bg-gray-200 rounded-xl font-semibold hover:bg-gray-300 transition-all"
+                                    >
+                                        Cancel
+                                    </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={confirmDelete}
+                                        className="px-6 py-3 text-white bg-gradient-to-r from-red-600 to-red-700 rounded-xl font-semibold hover:shadow-lg transition-all"
+                                    >
+                                        Yes, Delete
+                                    </motion.button>
+                                </div>
+                            </motion.div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </AppLayout>
     );
 } 

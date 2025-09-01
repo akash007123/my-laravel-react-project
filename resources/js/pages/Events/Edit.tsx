@@ -1,7 +1,8 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm, router } from '@inertiajs/react';
 import { type FormEvent, useState } from 'react';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Plus, Calendar, Clock, MapPin, Users, Tag, Edit } from 'lucide-react';
+import { motion } from "framer-motion";
 
 interface Event {
     id: number;
@@ -41,13 +42,13 @@ export default function EventsEdit({ event }: EventsEditProps) {
     const [tagInput, setTagInput] = useState('');
 
     const tagColors = [
-        'bg-yellow-100 text-yellow-800',
-        'bg-green-100 text-green-800',
-        'bg-blue-100 text-blue-800',
-        'bg-purple-100 text-purple-800',
-        'bg-pink-100 text-pink-800',
-        'bg-violet-100 text-violet-800',
-        'bg-neutral-100 text-neutral-800'
+        'bg-gradient-to-r from-yellow-400 to-orange-500 text-white',
+        'bg-gradient-to-r from-green-400 to-emerald-500 text-white',
+        'bg-gradient-to-r from-blue-400 to-indigo-500 text-white',
+        'bg-gradient-to-r from-purple-400 to-violet-500 text-white',
+        'bg-gradient-to-r from-pink-400 to-rose-500 text-white',
+        'bg-gradient-to-r from-indigo-400 to-purple-500 text-white',
+        'bg-gradient-to-r from-gray-400 to-slate-500 text-white'
     ];
 
     function handleAddTag() {
@@ -92,132 +93,180 @@ export default function EventsEdit({ event }: EventsEditProps) {
         <AppLayout>
             <Head title={`Edit ${event.title}`} />
             
-            <div className="container mx-auto px-4 py-8">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center space-x-4">
-                        <a
-                            href={route('events.show', event.id)}
-                            className="flex items-center text-gray-600 hover:text-gray-900"
-                        >
-                            <ArrowLeft className="h-4 w-4 mr-2" />
-                            Back to Event
-                        </a>
-                    </div>
-                    <h1 className="text-3xl font-bold text-gray-900">Edit Event</h1>
-                </div>
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 p-4">
+                {/* Floating Background Elements */}
+                <motion.div
+                    initial={{ y: -50, opacity: 0 }}
+                    animate={{ y: [0, -20, 0], opacity: 1 }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    className="fixed top-20 left-10 w-20 h-20 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 shadow-2xl blur-lg -z-10"
+                />
+                <motion.div
+                    initial={{ x: 50, opacity: 0 }}
+                    animate={{ x: [0, 20, 0], opacity: 1 }}
+                    transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+                    className="fixed bottom-20 right-10 w-28 h-28 rounded-3xl bg-gradient-to-tr from-indigo-400 to-purple-600 shadow-xl blur-md rotate-12 -z-10"
+                />
 
-                <div className="max-w-4xl mx-auto">
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="max-w-6xl mx-auto space-y-8">
+                    {/* Header */}
+                    <motion.div
+                        initial={{ y: -30, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.6 }}
+                        className="flex items-center justify-between"
+                    >
+                        <div className="flex items-center space-x-4">
+                            <motion.a
+                                whileHover={{ x: -5 }}
+                                href={route('events.show', event.id)}
+                                className="inline-flex items-center text-sm font-semibold text-gray-600 hover:text-gray-900 bg-white/80 backdrop-blur-xl hover:bg-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300"
+                            >
+                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                Back to Event
+                            </motion.a>
+                        </div>
+                        <h1 className="text-4xl font-extrabold text-gray-900">Edit Event</h1>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ duration: 0.8, delay: 0.2 }}
+                        className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-8"
+                    >
+                        <form onSubmit={handleSubmit} className="space-y-8">
                             {/* Basic Information */}
-                            <div>
-                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <motion.div
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ duration: 0.6, delay: 0.3 }}
+                            >
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <Plus className="w-6 h-6 mr-3 text-blue-600" />
+                                    Basic Information
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             Event Title *
                                         </label>
                                         <input
                                             type="text"
                                             value={data.title}
                                             onChange={(e) => setData('title', e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                            placeholder="Enter event title"
                                             required
                                         />
                                         {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             Organizer *
                                         </label>
                                         <input
                                             type="text"
                                             value={data.organizer}
                                             onChange={(e) => setData('organizer', e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                                            placeholder="Enter organizer name"
                                             required
                                         />
                                         {errors.organizer && <p className="text-red-500 text-sm mt-1">{errors.organizer}</p>}
                                     </div>
                                 </div>
 
-                                <div className="mt-4">
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                                <div className="mt-6">
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">
                                         Description
                                     </label>
                                     <textarea
                                         value={data.description}
                                         onChange={(e) => setData('description', e.target.value)}
                                         rows={4}
-                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                         placeholder="Describe your event..."
                                     />
                                     {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Date and Time */}
-                            <div>
-                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Date and Time</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <motion.div
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ duration: 0.6, delay: 0.4 }}
+                            >
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <Calendar className="w-6 h-6 mr-3 text-green-600" />
+                                    Date and Time
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             Event Date *
                                         </label>
                                         <input
                                             type="date"
                                             value={data.event_date}
                                             onChange={(e) => setData('event_date', e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                             required
                                         />
                                         {errors.event_date && <p className="text-red-500 text-sm mt-1">{errors.event_date}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             Start Time *
                                         </label>
                                         <input
                                             type="time"
                                             value={data.start_time}
                                             onChange={(e) => setData('start_time', e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                             required
                                         />
                                         {errors.start_time && <p className="text-red-500 text-sm mt-1">{errors.start_time}</p>}
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             End Time
                                         </label>
                                         <input
                                             type="time"
                                             value={data.end_time}
                                             onChange={(e) => setData('end_time', e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                         />
                                         {errors.end_time && <p className="text-red-500 text-sm mt-1">{errors.end_time}</p>}
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Location and Capacity */}
-                            <div>
-                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Location and Capacity</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <motion.div
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ duration: 0.6, delay: 0.5 }}
+                            >
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <MapPin className="w-6 h-6 mr-3 text-purple-600" />
+                                    Location and Capacity
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             Location *
                                         </label>
                                         <input
                                             type="text"
                                             value={data.location}
                                             onChange={(e) => setData('location', e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                             placeholder="Enter event location"
                                             required
                                         />
@@ -225,34 +274,41 @@ export default function EventsEdit({ event }: EventsEditProps) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             Capacity
                                         </label>
                                         <input
                                             type="number"
                                             value={data.capacity}
                                             onChange={(e) => setData('capacity', e.target.value)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                             placeholder="Maximum number of attendees"
                                             min="1"
                                         />
                                         {errors.capacity && <p className="text-red-500 text-sm mt-1">{errors.capacity}</p>}
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Status and Image */}
-                            <div>
-                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Additional Details</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <motion.div
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ duration: 0.6, delay: 0.6 }}
+                            >
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <Users className="w-6 h-6 mr-3 text-orange-600" />
+                                    Additional Details
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             Status *
                                         </label>
                                         <select
                                             value={data.status}
                                             onChange={(e) => setData('status', e.target.value as 'upcoming' | 'ongoing' | 'completed' | 'cancelled')}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                             required
                                         >
                                             <option value="upcoming">Upcoming</option>
@@ -264,32 +320,43 @@ export default function EventsEdit({ event }: EventsEditProps) {
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">
                                             Event Image
                                         </label>
                                         {event.image_url && (
-                                            <div className="mb-2">
+                                            <motion.div
+                                                initial={{ scale: 0.8, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                className="mb-4"
+                                            >
                                                 <img
                                                     src={event.image_url}
                                                     alt="Current event image"
-                                                    className="w-20 h-20 object-cover rounded"
+                                                    className="w-24 h-24 object-cover rounded-xl shadow-lg"
                                                 />
-                                            </div>
+                                            </motion.div>
                                         )}
                                         <input
                                             type="file"
                                             onChange={(e) => setData('image', e.target.files?.[0] || null)}
-                                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                             accept="image/*"
                                         />
                                         {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
                                     </div>
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Tags */}
-                            <div>
-                                <h2 className="text-lg font-semibold text-gray-900 mb-4">Tags</h2>
+                            <motion.div
+                                initial={{ x: -20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ duration: 0.6, delay: 0.7 }}
+                            >
+                                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                                    <Tag className="w-6 h-6 mr-3 text-pink-600" />
+                                    Tags
+                                </h2>
                                 <div className="space-y-4">
                                     <div className="flex gap-2">
                                         <input
@@ -302,54 +369,67 @@ export default function EventsEdit({ event }: EventsEditProps) {
                                                     handleAddTag();
                                                 }
                                             }}
-                                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="flex-1 p-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                                             placeholder="Add a tag and press Enter"
                                         />
-                                        <button
+                                        <motion.button
                                             type="button"
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                             onClick={handleAddTag}
-                                            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                                            className="px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold hover:shadow-lg transition-all"
                                         >
                                             Add
-                                        </button>
+                                        </motion.button>
                                     </div>
 
                                     {data.tags.length > 0 && (
-                                        <div className="flex flex-wrap gap-2">
+                                        <div className="flex flex-wrap gap-3">
                                             {data.tags.map((tag, index) => (
-                                                <span
+                                                <motion.span
                                                     key={index}
-                                                    className={`px-3 py-1 rounded-full text-sm font-medium ${tagColors[index % tagColors.length]} flex items-center`}
+                                                    initial={{ scale: 0, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    className={`px-4 py-2 rounded-full text-sm font-semibold flex items-center shadow-lg ${tagColors[index % tagColors.length]}`}
                                                 >
                                                     {tag}
-                                                    <button
+                                                    <motion.button
                                                         type="button"
+                                                        whileHover={{ scale: 1.2 }}
+                                                        whileTap={{ scale: 0.8 }}
                                                         onClick={() => removeTag(tag)}
-                                                        className="ml-2 hover:text-red-600"
+                                                        className="ml-2 hover:text-red-200 font-bold"
                                                     >
                                                         ×
-                                                    </button>
-                                                </span>
+                                                    </motion.button>
+                                                </motion.span>
                                             ))}
                                         </div>
                                     )}
                                     {errors.tags && <p className="text-red-500 text-sm">{errors.tags}</p>}
                                 </div>
-                            </div>
+                            </motion.div>
 
                             {/* Submit Button */}
-                            <div className="flex justify-end pt-6 border-t border-gray-200">
-                                <button
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ duration: 0.6, delay: 0.8 }}
+                                className="flex justify-end pt-8 border-t border-gray-200"
+                            >
+                                <motion.button
                                     type="submit"
                                     disabled={processing}
-                                    className="flex items-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    className="flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    <Save className="h-4 w-4 mr-2" />
+                                    <Save className="w-5 h-5 mr-2" />
                                     {processing ? 'Updating...' : 'Update Event'}
-                                </button>
-                            </div>
+                                </motion.button>
+                            </motion.div>
                         </form>
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </AppLayout>
