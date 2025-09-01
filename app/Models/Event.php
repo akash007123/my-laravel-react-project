@@ -22,8 +22,6 @@ class Event extends Model
 
     protected $casts = [
         'event_date' => 'date',
-        'start_time' => 'datetime:H:i',
-        'end_time' => 'datetime:H:i',
         'tags' => 'array',
     ];
 

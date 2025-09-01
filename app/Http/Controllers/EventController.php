@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class EventController extends Controller
 {
@@ -30,7 +31,7 @@ class EventController extends Controller
             ];
         });
 
-        // Get all events for card view (no pagination)
+        // Get all events for card view
         $allEvents = Event::latest()->get()->map(function ($event) {
             return [
                 'id' => $event->id,
@@ -107,8 +108,8 @@ class EventController extends Controller
                 'title' => $event->title,
                 'description' => $event->description,
                 'event_date' => $event->event_date?->toDateString(),
-                'start_time' => $event->start_time,
-                'end_time' => $event->end_time,
+                'start_time' => Carbon::parse($event->start_time)->format('h:i A'),
+                'end_time' => Carbon::parse($event->end_time)->format('h:i A'),
                 'location' => $event->location,
                 'capacity' => $event->capacity,
                 'status' => $event->status,
@@ -130,8 +131,8 @@ class EventController extends Controller
                 'title' => $event->title,
                 'description' => $event->description,
                 'event_date' => $event->event_date?->toDateString(),
-                'start_time' => $event->start_time,
-                'end_time' => $event->end_time,
+                'start_time' => $event->start_time ? Carbon::parse($event->start_time)->format('H:i') : '',
+                'end_time' => $event->end_time ? Carbon::parse($event->end_time)->format('H:i') : '',
                 'location' => $event->location,
                 'capacity' => $event->capacity,
                 'status' => $event->status,

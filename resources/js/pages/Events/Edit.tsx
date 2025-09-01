@@ -23,6 +23,7 @@ interface EventsEditProps {
 }
 
 export default function EventsEdit({ event }: EventsEditProps) {
+    
     const { data, setData, post, processing, errors } = useForm({
         title: event.title,
         description: event.description || '',
@@ -63,7 +64,7 @@ export default function EventsEdit({ event }: EventsEditProps) {
 
     function handleSubmit(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        
+                
         const formData = new FormData();
         formData.append('_method', 'PUT');
         Object.entries(data).forEach(([key, value]) => {
@@ -78,6 +79,12 @@ export default function EventsEdit({ event }: EventsEditProps) {
 
         router.post(route('events.update', event.id), formData, {
             forceFormData: true,
+            onError: (errors) => {
+                console.log('Validation errors:', errors);
+            },
+            onSuccess: () => {
+                console.log('Update successful');
+            },
         });
     }
 

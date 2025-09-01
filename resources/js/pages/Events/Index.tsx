@@ -39,7 +39,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
     const statusColors = {
         upcoming: 'bg-blue-100 text-blue-800',
         ongoing: 'bg-green-100 text-green-800',
-        completed: 'bg-gray-100 text-gray-800',
+        completed: 'bg-orange-100 text-orange-800',
         cancelled: 'bg-red-100 text-red-800'
     };
 
@@ -426,6 +426,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                                         </span>
                                     ))}
                                 </div>
+                                <div className="flex gap-2">
                                 <input
                                     type="text"
                                     placeholder="Add a tag and press Enter"
@@ -436,8 +437,22 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                                             e.currentTarget.value = '';
                                         }
                                     }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+                                            if (input && input.value.trim()) {
+                                                handleAddTag(input.value.trim());
+                                                input.value = '';
+                                            }
+                                        }}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
                                 {errors.tags && <p className="text-red-500 text-sm mt-1">{errors.tags}</p>}
                             </div>
 

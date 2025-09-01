@@ -51,18 +51,9 @@ export default function EventsShow({ event }: EventsShowProps) {
         });
     }
 
-    function formatTime(timeString: string) {
-        return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-        });
-    }
-
     function handleDelete() {
         router.delete(route('events.destroy', event.id), {
             onSuccess: () => {
-                // Redirect to events index after successful deletion
             },
         });
     }
@@ -98,13 +89,13 @@ export default function EventsShow({ event }: EventsShowProps) {
                     {/* Main Content */}
                     <div className="lg:col-span-2">
                         {/* Event Image */}
-                        <div className="text-center">
+                        <div className="">
                         {event.image_url && (
                             <div className="mb-6">
                                 <img
                                     src={event.image_url}
                                     alt={event.title}
-                                    className="w-64 h-84 object-cover mx-auto rounded-full"
+                                    className="w-full h-84 object-cover mx-auto"
                                 />
                             </div>
                         )}
@@ -142,8 +133,8 @@ export default function EventsShow({ event }: EventsShowProps) {
                                         <div>
                                             <p className="text-sm font-medium text-gray-900">Time</p>
                                             <p className="text-sm text-gray-600">
-                                                {formatTime(event.start_time)}
-                                                {event.end_time && ` - ${formatTime(event.end_time)}`}
+                                                {event.start_time}
+                                                {event.end_time && ` - ${event.end_time}`}
                                             </p>
                                         </div>
                                     </div>
@@ -215,8 +206,8 @@ export default function EventsShow({ event }: EventsShowProps) {
                                 <div>
                                     <p className="text-sm font-medium text-gray-900">Time</p>
                                     <p className="text-sm text-gray-600">
-                                        {formatTime(event.start_time)}
-                                        {event.end_time && ` - ${formatTime(event.end_time)}`}
+                                        {event.start_time}
+                                        {event.end_time && ` - ${event.end_time}`}
                                     </p>
                                 </div>
 
