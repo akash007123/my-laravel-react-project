@@ -53,6 +53,7 @@ class EventController extends Controller
             'events' => $events,
             'allEvents' => $allEvents,
             'tab' => $request->get('tab', 'List'),
+            "user" => auth()->user()
         ]);
     }
 

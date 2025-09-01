@@ -25,6 +25,7 @@ class HolidayController extends Controller
 
         return Inertia::render('Holidays/Index', [
             'holidays' => $holidays,
+            "user" => auth()->user()
         ]);
     }
 

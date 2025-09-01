@@ -7,6 +7,7 @@ interface ProjectsIndexProps {
     projects: { data: Project[]; links: any[] };
     allProjects: Project[];
     tab?: string;
+    user: AuthUser;
 }
 
 interface Project {
@@ -21,7 +22,20 @@ interface Project {
     image_url?: string | null;
 }
 
-export default function ProjectsIndex({ projects, allProjects, tab = 'List' }: ProjectsIndexProps) {
+interface FormData {
+    title: string;
+    technologies: string[];
+    description: string;
+    start_date: string;
+    end_date: string;
+    client_name: string;
+    project_manager: string;
+    image: File | null;
+}
+
+type AuthUser = { name: string; email: string };
+
+export default function ProjectsIndex({ projects, allProjects, tab = 'List', user }: ProjectsIndexProps) {
     const tabs = ['Create', 'List', 'Cards'] as const;
     const [activeTab, setActiveTab] = useState<typeof tabs[number]>(tab as typeof tabs[number]);
     const [openDropdown, setOpenDropdown] = useState<number | string | null>(null);
@@ -53,7 +67,7 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List' }: P
         };
     }, [openDropdown]);
 
-    const { data, setData, post, put, reset, errors } = useForm<any>({
+    const { data, setData, post, put, reset, errors } = useForm<FormData>({
         title: '',
         technologies: [],
         description: '',
@@ -61,7 +75,7 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List' }: P
         end_date: '',
         client_name: '',
         project_manager: '',
-        image: null as File | null,
+        image: null,
     });
 
     const [editingId, setEditingId] = useState<number | string | null>(null);
@@ -156,7 +170,7 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List' }: P
     const formButtonText = editingId ? 'Update Project' : 'Create Project';
 
     return (
-        <AppLayout breadcrumbs={[{ title: 'Projects', href: '/projects' }]}>
+        <AppLayout breadcrumbs={[{ title: 'Projects', href: '/projects' }]} user={user}>
             <Head title="Projects" />
 
             <div className="p-4 space-y-6">

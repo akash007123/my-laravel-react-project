@@ -12,6 +12,7 @@ interface EventsIndexProps {
     events: { data: Event[]; links: any[] };
     allEvents: Event[];
     tab?: string;
+    user: AuthUser;
 }
 
 interface Event {
@@ -29,7 +30,9 @@ interface Event {
     tags?: string[];
 }
 
-export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsIndexProps) {
+type AuthUser = { name: string; email: string };
+
+export default function EventsIndex({ events, allEvents, tab = 'List', user }: EventsIndexProps) {
     const tabs = ['Create', 'List', 'Cards', 'Calendar'] as const;
     const [activeTab, setActiveTab] = useState<typeof tabs[number]>(tab as typeof tabs[number]);
     const [openDropdown, setOpenDropdown] = useState<number | string | null>(null);
@@ -208,7 +211,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
         switch (status) {
             case 'upcoming': return '#3B82F6'; // blue
             case 'ongoing': return '#10B981'; // green
-            case 'completed': return '#6B7280'; // gray
+            case 'completed': return '#9F3020'; // brown
             case 'cancelled': return '#EF4444'; // red
             default: return '#3B82F6'; // blue
         }
@@ -218,7 +221,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
         switch (status) {
             case 'upcoming': return '#EFF6FF'; // light blue
             case 'ongoing': return '#ECFDF5'; // light green
-            case 'completed': return '#F3F4F6'; // light gray
+            case 'completed': return '#FFEDD4'; // light gray
             case 'cancelled': return '#FEF2F2'; // light red
             default: return '#EFF6FF'; // light blue
         }
@@ -232,10 +235,11 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
             case 'cancelled': return '#991B1B'; // dark red
             default: return '#1E40AF'; // dark blue
         }
+
     }
 
     return (
-        <AppLayout>
+        <AppLayout user={user}>
             <Head title="Events" />
 
             <div className="p-4 space-y-6">
@@ -438,7 +442,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                                         }
                                     }}
                                         className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
+                                    />
                                     <button
                                         type="button"
                                         onClick={(e) => {
@@ -680,6 +684,20 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                 {/* Calendar Tab */}
                 {activeTab === 'Calendar' && (
                     <div className="container mx-auto p-4">
+
+                    {/* User Name */}
+                    {/* <p>{user.name}</p> */}
+
+                        <div className="flex items-center gap-2 mb-4 justify">
+                            {/* <div className={`w-4 h-4 rounded-md ${statusColors.upcoming}`}></div> */}
+                            <p className={`text-sm p-2 ${statusColors.upcoming}`}>Upcoming</p>
+                            {/* <div className={`w-4 h-4 rounded-md ${statusColors.ongoing}`}></div> */}
+                            <p className={`text-sm p-2 ${statusColors.ongoing}`}>Ongoing</p>
+                            {/* <div className={`w-4 h-4 rounded-md ${statusColors.completed}`}></div> */}
+                            <p className={`text-sm p-2 ${statusColors.completed}`}>Completed</p>
+                            {/* <div className={`w-4 h-4 rounded-md ${statusColors.cancelled}`}></div> */}
+                            <p className={`text-sm p-2 ${statusColors.cancelled}`}>Cancelled</p>
+                        </div>
                         <div className="grid grid-cols-12 gap-4">
                             {/* Calendar Column - 8/12 */}
                             <div className="col-span-12 md:col-span-8 bg-white rounded-lg shadow p-4 sm:p-6">
@@ -757,24 +775,80 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                                             const textColor = getEventTextColor(event.status);
                                             
                                             return (
+                                                <div className="list-table">
                                                 <li key={event.id} 
                                                     className={`border-l-6 p-4 rounded-lg flex justify-between items-center cursor-pointer transition-colors hover:opacity-80`}
                                                     style={{
                                                         borderLeftColor: statusColor,
                                                         backgroundColor: bgColor,
-                                                    }}
-                                                    onClick={() => router.visit(route('events.show', event.id))}>
+                                                        }}>
+
                                                     <div>
                                                         <p className={`font-medium ${textColor}`}>{event.title}</p>
-                                                        <p className={`text-sm ${textColor} opacity-80`}>
+                                                            <p className={`text-sm ${textColor} opacity-80, flex items-center gap-2`}>
                                                             {event.event_date} 
+                                                                {/* {event.image_url && (
+                                                                    <img
+                                                                        className="h-10 w-10 rounded-lg object-cover mr-3"
+                                                                        src={event.image_url}
+                                                                        alt={event.title}
+                                                                    />
+                                                                )} */}
                                                         </p>
                                                     </div>
-                                                    <span className={`px-2 py-1 rounded text-xs text-white font-medium`}
-                                                          style={{ backgroundColor: statusColor }}>
-                                                        {event.status}
-                                                    </span>
+                                                        <div className="">
+
+
+                                                            <div className="relative group inline-block">
+                                                                <button
+                                                                    onClick={() => handleDelete(event)}
+                                                                    className="cursor-pointer flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4 mr-2" />
+                                                                </button>
+                                                                <div className="absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 hidden group-hover:flex 
+                                                                            items-center">
+
+                                                                    <div className="bg-gray-800 text-white text-sm px-3 py-1 rounded-lg shadow-lg relative">
+                                                                        Delete
+                                                                        <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 
+                                                                                w-3 h-3 bg-gray-800 rotate-45"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <div className="relative group inline-block">
+                                                                <Link
+                                                                    href={route('events.show', event.id)}
+                                                                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                                >
+                                                                    <Eye className="h-4 w-4 mr-2" />
+                                                                </Link>
+                                                                <div className="absolute left-0 top-1/2 -translate-x-full -translate-y-1/2 hidden group-hover:flex 
+                                                                            items-center">
+
+                                                                    <div className="bg-gray-800 text-white text-sm px-3 py-1 rounded-lg shadow-lg relative">
+                                                                        View
+                                                                        <div className="absolute right-[-6px] top-1/2 -translate-y-1/2 
+                                                                                w-3 h-3 bg-gray-800 rotate-45"></div>
+                                                                    </div>
+                                                                </div>
+
+                                                            </div>
+
+                                                        </div>
                                                 </li>
+                                                    {/* <div className="img">
+                                                    {event.image_url && (
+                                                        <img
+                                                            className="h-10 w-10 rounded-lg object-cover mr-3"
+                                                            src={event.image_url}
+                                                            alt={event.title}
+                                                        />
+                                                    )}
+                                                    </div> */}
+                                                </div>
                                             );
                                         })}
                                     </ul>

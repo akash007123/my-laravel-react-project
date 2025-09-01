@@ -13,10 +13,13 @@ interface Holiday {
 
 interface HolidaysIndexProps {
     holidays: Holiday[];
+    user: AuthUser;
 }
 
-export default function HolidaysIndex({ holidays }: HolidaysIndexProps) {
-    console.log('HolidaysIndex component rendered with holidays:', holidays);
+type AuthUser = { name: string; email: string };
+
+export default function HolidaysIndex({ holidays, user}: HolidaysIndexProps) {
+    console.log('HolidaysIndex', holidays);
     
     const [showDeleteModal, setShowDeleteModal] = useState<number | null>(null);
 
@@ -36,7 +39,7 @@ export default function HolidaysIndex({ holidays }: HolidaysIndexProps) {
     }
 
     return (
-        <AppLayout>
+        <AppLayout user={user}>
             <Head title="Holidays" />
             
             <div className="container mx-auto px-4 py-8">
