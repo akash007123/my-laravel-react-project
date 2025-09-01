@@ -11,7 +11,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, Users, Target, Calendar, Gift } from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
@@ -20,6 +20,26 @@ const mainNavItems: NavItem[] = [
         title: 'Dashboard',
         url: '/dashboard',
         icon: LayoutGrid,
+    },
+    {
+        title: 'Users',
+        url: '/users',
+        icon: Users,
+    },
+    {
+        title: 'Projects',
+        url: '/projects',
+        icon: Target,
+    },
+    {
+        title: 'Events',
+        url: '/events',
+        icon: Calendar,
+    },
+    {
+        title: 'Holidays',
+        url: '/holidays',
+        icon: Gift,
     },
 ];
 

@@ -556,7 +556,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                                                 <div className="relative dropdown-container">
                                                     <button
                                                         onClick={() => setOpenDropdown(openDropdown === event.id ? null : (event.id || null))}
-                                                        className="text-gray-400 hover:text-gray-600"
+                                                        className="cursor-pointer text-gray-400 hover:text-gray-600"
                                                     >
                                                         <MoreVertical className="h-4 w-4" />
                                                     </button>
@@ -579,7 +579,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List' }: EventsI
                                                                 </Link>
                                                                 <button
                                                                     onClick={() => handleDelete(event)}
-                                                                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                                                    className="cursor-pointer flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
                                                                 >
                                                                     <Trash2 className="h-4 w-4 mr-2" />
                                                                     Delete
