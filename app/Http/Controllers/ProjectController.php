@@ -46,6 +46,7 @@ class ProjectController extends Controller
             'projects' => $projects,
             'allProjects' => $allProjects,
             'tab' => $request->get('tab', 'List'),
+            "user" => auth()->user()
         ]);
     }
 
