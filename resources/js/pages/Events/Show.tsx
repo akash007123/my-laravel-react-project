@@ -98,13 +98,13 @@ export default function EventsShow({ event }: EventsShowProps) {
                     {/* Main Content */}
                     <div className="lg:col-span-2">
                         {/* Event Image */}
-                        <div className="">
+                        <div className="text-center">
                         {event.image_url && (
                             <div className="mb-6">
                                 <img
                                     src={event.image_url}
                                     alt={event.title}
-                                    className="w-full h-64 object-cover"
+                                    className="w-64 h-84 object-cover mx-auto rounded-full"
                                 />
                             </div>
                         )}

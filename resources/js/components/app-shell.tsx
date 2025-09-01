@@ -1,5 +1,5 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface AppShellProps {
     children: React.ReactNode;
@@ -7,7 +7,17 @@ interface AppShellProps {
 }
 
 export function AppShell({ children, variant = 'header' }: AppShellProps) {
-    const [isOpen, setIsOpen] = useState(() => (typeof window !== 'undefined' ? localStorage.getItem('sidebar') !== 'false' : true));
+    // Force sidebar to be open by default to ensure all navigation items are visible
+    const [isOpen, setIsOpen] = useState(true);
+
+    // Clear any existing sidebar cookie to ensure the sidebar is expanded
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            // Clear the sidebar cookie to force expansion
+            document.cookie = 'sidebar:state=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            localStorage.removeItem('sidebar');
+        }
+    }, []);
 
     const handleSidebarChange = (open: boolean) => {
         setIsOpen(open);
