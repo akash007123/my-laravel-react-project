@@ -1,6 +1,6 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, Link, useForm, router } from '@inertiajs/react';
-import { useState, type FormEvent, useEffect } from 'react';
+import { useState, type FormEvent, useEffect, useMemo } from 'react';
 import { Eye, Trash2, Pencil, MoreVertical, Calendar, Clock, MapPin, Users, Plus, Grid3X3, List, CalendarDays } from 'lucide-react';
 import { motion, AnimatePresence } from "framer-motion";
 import FullCalendar from '@fullcalendar/react';
@@ -38,6 +38,8 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
     const [openDropdown, setOpenDropdown] = useState<number | string | null>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [eventToDelete, setEventToDelete] = useState<Event | null>(null);
+    const [query, setQuery] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'upcoming' | 'ongoing' | 'completed' | 'cancelled'>('all');
 
     const statusColors = {
         upcoming: 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white',
@@ -237,6 +239,17 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
         }
     }
 
+    const filteredEvents = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        return events.data.filter((e) => {
+            const matchesQuery = !q || [e.title, e.description, e.location, e.organizer]
+                .filter(Boolean)
+                .some((v) => v!.toLowerCase().includes(q));
+            const matchesStatus = statusFilter === 'all' || e.status === statusFilter;
+            return matchesQuery && matchesStatus;
+        });
+    }, [events.data, query, statusFilter]);
+
     return (
         <AppLayout user={user}>
             <Head title="Events" />
@@ -282,11 +295,10 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
                                     initial={{ opacity: 0, x: -20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                                    className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                                        activeTab === tab 
-                                            ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg' 
-                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                                    }`}
+                                    className={`flex-1 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${activeTab === tab
+                                        ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg'
+                                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                                        }`}
                                     onClick={() => {
                                         setActiveTab(tab);
                                         router.get(route('events.index'), { tab }, {
@@ -539,112 +551,190 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
                                 transition={{ duration: 0.5 }}
                                 className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-8"
                             >
-                                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
                                     <h2 className="text-2xl font-bold text-gray-900">All Events</h2>
-                                    <motion.button
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                        className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center"
-                                        onClick={() => setActiveTab('Create')}
-                                    >
-                                        <Plus className="w-4 h-4 mr-2" />
-                                        New Event
-                                    </motion.button>
+                                    <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+                                        <div className="relative flex-1">
+                                            <input
+                                                value={query}
+                                                onChange={(e) => setQuery(e.target.value)}
+                                                placeholder="Search events..."
+                                                className="w-full pl-4 pr-4 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            />
+                                        </div>
+                                        <select
+                                            value={statusFilter}
+                                            onChange={(e) => setStatusFilter(e.target.value as any)}
+                                            className="px-3 py-2 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        >
+                                            <option value="all">All statuses</option>
+                                            <option value="upcoming">Upcoming</option>
+                                            <option value="ongoing">Ongoing</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="cancelled">Cancelled</option>
+                                        </select>
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all flex items-center"
+                                            onClick={() => setActiveTab('Create')}
+                                        >
+                                            <Plus className="w-4 h-4 mr-2" />
+                                            New Event
+                                        </motion.button>
+                                    </div>
                                 </div>
 
-                                <div className="overflow-x-auto">
-                                    <table className="w-full border-collapse">
-                                        <thead>
-                                            <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
-                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Event</th>
-                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date & Time</th>
-                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Location</th>
-                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Organizer</th>
-                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {events.data.map((event, index) => (
-                                                <motion.tr
-                                                    key={event.id}
-                                                    initial={{ opacity: 0, y: 20 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                                                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
-                                                >
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center">
-                                                            {event.image_url ? (
-                                                                <img
-                                                                    className="h-12 w-12 rounded-xl object-cover shadow-md mr-4"
-                                                                    src={event.image_url}
-                                                                    alt={event.title}
-                                                                />
-                                                            ) : (
-                                                                <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center shadow-md mr-4">
-                                                                    <Calendar className="w-6 h-6 text-gray-500" />
-                                                                </div>
-                                                            )}
-                                                            <div>
-                                                                <div className="font-semibold text-gray-900">{event.title}</div>
-                                                                {event.description && (
-                                                                    <div className="text-sm text-gray-500 truncate max-w-xs">
-                                                                        {event.description}
+                                {filteredEvents.length === 0 ? (
+                                    <div className="flex flex-col items-center justify-center text-center text-gray-600 py-16">
+                                        <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mb-4">
+                                            <Calendar className="w-8 h-8 text-blue-500" />
+                                        </div>
+                                        <p className="text-lg font-semibold mb-1">No events found</p>
+                                        <p className="mb-4">Try adjusting your filters or create a new event.</p>
+                                        <motion.button
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-xl font-semibold shadow-lg"
+                                            onClick={() => setActiveTab('Create')}
+                                        >
+                                            Create Event
+                                        </motion.button>
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto hidden md:block">
+                                        <table className="w-full border-collapse">
+                                            <thead>
+                                                <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
+                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Event</th>
+                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Date & Time</th>
+                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Location</th>
+                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Organizer</th>
+                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {filteredEvents.map((event, index) => (
+                                                    <motion.tr
+                                                        key={event.id}
+                                                        initial={{ opacity: 0, y: 20 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                                                        className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                                                    >
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center">
+                                                                {event.image_url ? (
+                                                                    <img
+                                                                        className="h-12 w-12 rounded-xl object-cover shadow-md mr-4"
+                                                                        src={event.image_url}
+                                                                        alt={event.title}
+                                                                    />
+                                                                ) : (
+                                                                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center shadow-md mr-4">
+                                                                        <Calendar className="w-6 h-6 text-gray-500" />
                                                                     </div>
                                                                 )}
+                                                                <div>
+                                                                    <div className="font-semibold text-gray-900">{event.title}</div>
+                                                                    {event.description && (
+                                                                        <div className="text-sm text-gray-500 truncate max-w-xs">
+                                                                            {event.description}
+                                                                        </div>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="text-sm text-gray-900">{formatDate(event.event_date)}</div>
-                                                        <div className="text-sm text-gray-500">
-                                                            {formatTime(event.start_time)}
-                                                            {event.end_time && ` - ${formatTime(event.end_time)}`}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="text-sm text-gray-900">{event.location}</div>
-                                                        {event.capacity && (
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="text-sm text-gray-900">{formatDate(event.event_date)}</div>
                                                             <div className="text-sm text-gray-500">
-                                                                Capacity: {event.capacity}
+                                                                {formatTime(event.start_time)}
+                                                                {event.end_time && ` - ${formatTime(event.end_time)}`}
                                                             </div>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-sm text-gray-900">{event.organizer}</td>
-                                                    <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-2">
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.1 }}
-                                                                whileTap={{ scale: 0.9 }}
-                                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                            >
-                                                                <Link href={route('events.show', event.id)}>
-                                                                    <Eye className="w-4 h-4" />
-                                                                </Link>
-                                                            </motion.button>
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.1 }}
-                                                                whileTap={{ scale: 0.9 }}
-                                                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                                                            >
-                                                                <Link href={route('events.edit', event.id)}>
-                                                                    <Pencil className="w-4 h-4" />
-                                                                </Link>
-                                                            </motion.button>
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.1 }}
-                                                                whileTap={{ scale: 0.9 }}
-                                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                                                onClick={() => handleDelete(event)}
-                                                            >
-                                                                <Trash2 className="w-4 h-4" />
-                                                            </motion.button>
-                                                        </div>
-                                                    </td>
-                                                </motion.tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="text-sm text-gray-900">{event.location}</div>
+                                                            {event.capacity && (
+                                                                <div className="text-sm text-gray-500">
+                                                                    Capacity: {event.capacity}
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-6 py-4 text-sm text-gray-900">{event.organizer}</td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-2">
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                >
+                                                                    <Link href={route('events.show', event.id)}>
+                                                                        <Eye className="w-4 h-4" />
+                                                                    </Link>
+                                                                </motion.button>
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                                >
+                                                                    <Link href={route('events.edit', event.id)}>
+                                                                        <Pencil className="w-4 h-4" />
+                                                                    </Link>
+                                                                </motion.button>
+                                                                <motion.button
+                                                                    whileHover={{ scale: 1.1 }}
+                                                                    whileTap={{ scale: 0.9 }}
+                                                                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                    onClick={() => handleDelete(event)}
+                                                                >
+                                                                    <Trash2 className="w-4 h-4" />
+                                                                </motion.button>
+                                                            </div>
+                                                        </td>
+                                                    </motion.tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                {/* Mobile Cards */}
+                                <div className="grid gap-4 md:hidden">
+                                    {filteredEvents.map((event, index) => (
+                                        <motion.div
+                                            key={event.id}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.5, delay: index * 0.05 }}
+                                            className="bg-white rounded-xl p-4 shadow"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                {event.image_url ? (
+                                                    <img src={event.image_url} alt={event.title} className="w-12 h-12 rounded-lg object-cover" />
+                                                ) : (
+                                                    <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                                                        <Calendar className="w-6 h-6 text-gray-400" />
+                                                    </div>
+                                                )}
+                                                <div className="flex-1">
+                                                    <p className="font-semibold text-gray-900">{event.title}</p>
+                                                    <p className="text-sm text-gray-500">{formatDate(event.event_date)} • {formatTime(event.start_time)}{event.end_time && ` - ${formatTime(event.end_time)}`}</p>
+                                                    <p className="text-sm text-gray-500">{event.location}</p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Link href={route('events.show', event.id)} className="text-blue-600">
+                                                        <Eye className="w-4 h-4" />
+                                                    </Link>
+                                                    <Link href={route('events.edit', event.id)} className="text-green-600">
+                                                        <Pencil className="w-4 h-4" />
+                                                    </Link>
+                                                    <button onClick={() => handleDelete(event)} className="text-red-600">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
                                 </div>
                             </motion.div>
                         )}
@@ -680,7 +770,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
                                                 <Calendar className="w-16 h-16 text-gray-500" />
                                             </div>
                                         )}
-                                        
+
                                         <div className="p-6">
                                             <div className="flex items-center justify-between mb-4">
                                                 <h3 className="text-xl font-bold text-gray-900 truncate">{event.title}</h3>
@@ -832,13 +922,13 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
                                     {/* Event List Column */}
                                     <div className="col-span-12 lg:col-span-4 bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl p-6">
                                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Event List</h2>
-                                        <div className="h-96 overflow-y-auto">
+                                        <div className="h-106 overflow-y-auto">
                                             <ul className="space-y-3">
                                                 {allEvents.map((event, index) => {
                                                     const statusColor = getEventColor(event.status);
                                                     const bgColor = getEventBgColor(event.status);
                                                     const textColor = getEventTextColor(event.status);
-                                                    
+
                                                     return (
                                                         <motion.li
                                                             key={event.id}
@@ -881,6 +971,30 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
                                                 })}
                                             </ul>
                                         </div>
+                                        <p className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-400 via-yellow-300 via-green-400 via-blue-500 to-purple-600 font-bold">
+                                            Latest Upcoming Event
+                                        </p>
+
+                                        <div className="mt-4 grid lg:grid-cols-2 md:grid-cols-2 sm:grid-cols-1 gap-4">
+                                            <div className="flex flex-col items-center text-center">
+                                                <img
+                                                    src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcTzarolVATon0pNEkpg5-qgplhT3enwvTxoZr-6AtXoCT7yt-trlvEroyc4cvsTPYJJYFw8MQyRZFutBAc"
+                                                    className="w-64 h-auto object-contain"
+                                                    alt="Radhika Das Tour"
+                                                />
+                                                <p className="mt-2 text-lg font-medium">Radhika Das Tour</p>
+                                            </div>
+
+                                            <div className="flex flex-col items-center text-center">
+                                                <img
+                                                    src="https://res.cloudinary.com/jetron-mall/image/upload/v1748891754/production/jetron-ticket/events/70394763-7790-4e60-afc7-f1e5b87f9678/media/images/0ce31c7f-74e3-4266-83de-bb3fae8b588a.jpg"
+                                                    className="w-64 h-auto object-contain"
+                                                    alt="Prom Party"
+                                                />
+                                                <p className="mt-2 text-lg font-medium">Prom Party</p>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </motion.div>

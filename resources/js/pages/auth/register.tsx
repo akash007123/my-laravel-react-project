@@ -1,4 +1,4 @@
-import { Head, useForm, Link} from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react';
 import { LoaderCircle } from 'lucide-react';
 import { FormEventHandler } from 'react';
 import { motion } from "framer-motion";
@@ -36,7 +36,7 @@ export default function Register() {
         <>
             <Head title="Register" />
             <div className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-blue-100 overflow-hidden px-4">
-      
+
                 {/* Floating 3D Elements */}
                 <motion.div
                     initial={{ y: -50, opacity: 0 }}
@@ -58,10 +58,11 @@ export default function Register() {
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     className="max-w-5xl w-full bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl grid grid-cols-1 md:grid-cols-2 overflow-hidden"
                 >
-                    
+
                     {/* Left Side: Form */}
                     <div className="p-6 flex flex-col justify-center">
                         <div className="text-center mb-6">
+                            <img src="https://ik.imagekit.io/sentyaztie/Dlogo.png?updatedAt=1749928182723" className='h-15 w-45 mx-auto'/>
                             <motion.h2
                                 initial={{ y: -30, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
@@ -84,9 +85,8 @@ export default function Register() {
                                     placeholder="John Doe"
                                     value={data.name}
                                     onChange={e => setData('name', e.target.value)}
-                                    className={`mt-1 w-full p-3 rounded-lg border transition shadow-sm ${
-                                        errors.name ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                                    }`}
+                                    className={`mt-1 w-full p-3 rounded-lg border transition shadow-sm ${errors.name ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                                        }`}
                                 />
                                 {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                             </div>
@@ -99,9 +99,8 @@ export default function Register() {
                                     placeholder="email@example.com"
                                     value={data.email}
                                     onChange={e => setData('email', e.target.value)}
-                                    className={`mt-1 w-full p-3 rounded-lg border transition shadow-sm ${
-                                        errors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                                    }`}
+                                    className={`mt-1 w-full p-3 rounded-lg border transition shadow-sm ${errors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                                        }`}
                                 />
                                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                             </div>
@@ -114,9 +113,8 @@ export default function Register() {
                                     placeholder="********"
                                     value={data.password}
                                     onChange={e => setData('password', e.target.value)}
-                                    className={`mt-1 w-full p-3 rounded-lg border transition shadow-sm ${
-                                        errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                                    }`}
+                                    className={`mt-1 w-full p-3 rounded-lg border transition shadow-sm ${errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                                        }`}
                                 />
                                 {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                             </div>
@@ -129,9 +127,8 @@ export default function Register() {
                                     placeholder="********"
                                     value={data.password_confirmation}
                                     onChange={e => setData('password_confirmation', e.target.value)}
-                                    className={`mt-1 w-full p-3 rounded-lg border transition shadow-sm ${
-                                        errors.password_confirmation ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
-                                    }`}
+                                    className={`mt-1 w-full p-3 rounded-lg border transition shadow-sm ${errors.password_confirmation ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                                        }`}
                                 />
                                 {errors.password_confirmation && <p className="text-red-500 text-xs mt-1">{errors.password_confirmation}</p>}
                             </div>
