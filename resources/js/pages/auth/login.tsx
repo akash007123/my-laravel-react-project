@@ -66,6 +66,7 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                     {/* Left Side: Form */}
                     <div className="p-8 flex flex-col justify-center">
                         <div className="text-center mb-8">
+                            <img src="https://ik.imagekit.io/sentyaztie/Dlogo.png?updatedAt=1749928182723" className='h-15 w-45 mx-auto'/>
                             <motion.h2
                                 initial={{ y: -30, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
