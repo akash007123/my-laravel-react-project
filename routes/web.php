@@ -30,6 +30,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource("projects", \App\Http\Controllers\ProjectController::class);
     Route::resource("events", \App\Http\Controllers\EventController::class);
     Route::resource("holidays", \App\Http\Controllers\HolidayController::class);
+    Route::resource("gallery", \App\Http\Controllers\GalleryController::class);
+    Route::resource("department", \App\Http\Controllers\DepartmentController::class)->only(['index','store']);
 });
 
 
