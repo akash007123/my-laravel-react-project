@@ -34,4 +34,23 @@ class DepartmentController extends Controller
 
         return redirect()->route('department.index');
     }
+
+    public function update(Request $request, Department $department)
+    {
+        $data = $request->validate([
+            'department_name' => 'required|string|max:255',
+            'department_head' => 'nullable|string|max:255',
+        ]);
+
+        $department->update($data);
+
+        return redirect()->route('department.index');
+    }
+
+    public function destroy(Department $department)
+    {
+        $department->delete();
+
+        return redirect()->route('department.index');
+    }
 }
