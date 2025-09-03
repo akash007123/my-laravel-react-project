@@ -36,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource("holidays", \App\Http\Controllers\HolidayController::class);
     Route::resource("gallery", \App\Http\Controllers\GalleryController::class);
     Route::resource("department", \App\Http\Controllers\DepartmentController::class);
+    Route::resource("reports", \App\Http\Controllers\ReportController::class);
 });
 
 

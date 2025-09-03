@@ -18,7 +18,7 @@ class GalleryController extends Controller
             ->map(fn ($g) => [
                 'id' => $g->id,
                 'title' => $g->title,
-                'image_url' => $g->image_path ? Storage::url($g->image_path) : null,
+                'image_url' => $g->image_path ? (Storage::url($g->image_path) . '?v=' . optional($g->updated_at)->timestamp) : null,
                 'uploader' => $g->user?->name,
             ]);
 
@@ -45,4 +45,27 @@ class GalleryController extends Controller
 
         return redirect()->route('gallery.index');
     }
+
+    public function update(Request $request, Gallery $gallery)
+    {
+        // info($request);
+        $data = $request->validate([
+            'title' => 'nullable|string|max:255',
+            'image' => 'nullable|image|max:5120',
+        ]);
+        if ($request->hasFile('image')) {
+            if ($gallery->image_path) {
+                Storage::disk('public')->delete($gallery->image_path);
+            }
+            $data['image_path'] = $request->file('image')->store('gallery', 'public');
+        }
+
+        $gallery->update([
+            'title' => $data['title'] ?? $gallery->title,
+            'image_path' => $data['image_path'] ?? $gallery->image_path,
+        ]);
+
+        return redirect()->route('gallery.index');
+    }
+
 }
