@@ -17,12 +17,16 @@ Route::middleware(['auth'])->group(function () {
         $totalUsers = \App\Models\User::count();
         $totalProjects = \App\Models\Project::count();
         $totalHolidays = \App\Models\Holiday::count();
+        $totalGallery = \App\Models\Gallery::count();
+        $totalDepartments = \App\Models\Department::count();
         return Inertia::render('dashboard', [
             'user' => auth()->user(),
             'totalEvents' => $totalEvents,
             'totalUsers' => $totalUsers,
             'totalProjects' => $totalProjects,
-            'totalHolidays' => $totalHolidays
+            'totalHolidays' => $totalHolidays,
+            'totalGallery' => $totalGallery,
+            'totalDepartments' => $totalDepartments,
         ]);
     })->name('dashboard');
 
@@ -32,6 +36,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource("holidays", \App\Http\Controllers\HolidayController::class);
     Route::resource("gallery", \App\Http\Controllers\GalleryController::class);
     Route::resource("department", \App\Http\Controllers\DepartmentController::class);
+    Route::resource("reports", \App\Http\Controllers\ReportController::class);
 });
 
 

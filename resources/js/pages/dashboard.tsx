@@ -6,6 +6,8 @@ import {
     Users,
     BriefcaseBusiness,
     CalendarDays,
+    Image,
+    Building,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -24,12 +26,16 @@ export default function Dashboard({
     totalProjects,
     totalUsers,
     totalHolidays,
+    totalGallery,
+    totalDepartments,
 }: {
     user: DashboardUser;
     totalEvents?: number;
     totalProjects?: number;
     totalUsers?: number;
     totalHolidays?: number;
+    totalGallery?: number;
+    totalDepartments?: number;
 }) {
     const stats = [
         {
@@ -59,6 +65,20 @@ export default function Dashboard({
             icon: <CalendarDays className="w-7 h-7 text-red-600" />,
             link: '/holidays',
             gradient: 'from-red-500/10 to-red-500/30',
+        },
+        {
+            title: 'Total Gallery',
+            count: totalGallery || 0,
+            icon: <Image className="w-7 h-7 text-yellow-600" />,
+            link: '/gallery',
+            gradient: 'from-yellow-500/10 to-yellow-500/30',
+        },
+        {
+            title: 'Total Departments',
+            count: totalDepartments || 0,
+            icon: <Building className="w-7 h-7 text-orange-600" />,
+            link: '/department',
+            gradient: 'from-orange-500/10 to-orange-500/30',
         },
     ];
 

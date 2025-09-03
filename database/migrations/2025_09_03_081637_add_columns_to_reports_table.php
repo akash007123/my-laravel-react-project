@@ -6,18 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('holidays', function (Blueprint $table) {
-            $table->id();
-            $table->string('holiday_name');
-            $table->date('holiday_date');
-            $table->timestamps();
+        Schema::table('reports', function (Blueprint $table) {
+            //
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('holidays');
+        Schema::table('reports', function (Blueprint $table) {
+            //
+        });
     }
 };
