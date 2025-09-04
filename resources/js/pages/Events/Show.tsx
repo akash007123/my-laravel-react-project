@@ -3,6 +3,8 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Calendar, Clock, MapPin, Users, ArrowLeft, Edit, Trash2, CalendarDays, User, Building } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
+import {formatDateWithWeekday} from '../utils'
+
 
 interface Event {
     id: number;
@@ -42,15 +44,6 @@ export default function EventsShow({ event }: EventsShowProps) {
         'bg-gradient-to-r from-indigo-400 to-purple-500 text-white',
         'bg-gradient-to-r from-gray-400 to-slate-500 text-white'
     ];
-
-    function formatDate(dateString: string) {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    }
 
     function handleDelete() {
         router.delete(route('events.destroy', event.id), {
@@ -144,7 +137,7 @@ export default function EventsShow({ event }: EventsShowProps) {
                                         <Calendar className="h-6 w-6 text-blue-600 mr-4" />
                                         <div>
                                             <p className="text-sm font-semibold text-gray-900">Date</p>
-                                            <p className="text-gray-600">{formatDate(event.event_date)}</p>
+                                            <p className="text-gray-600">{formatDateWithWeekday(event.event_date)}</p>
                                         </div>
                                     </motion.div>
 
@@ -261,7 +254,7 @@ export default function EventsShow({ event }: EventsShowProps) {
                                             <Calendar className="w-5 h-5 text-purple-600 mr-2" />
                                             <p className="text-sm font-semibold text-gray-900">Event Date</p>
                                         </div>
-                                        <p className="text-gray-700 font-medium">{formatDate(event.event_date)}</p>
+                                        <p className="text-gray-700 font-medium">{formatDateWithWeekday(event.event_date)}</p>
                                     </motion.div>
 
                                     <motion.div

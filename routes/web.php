@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserController;
+use Illuminate\Support\Carbon;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -19,6 +20,10 @@ Route::middleware(['auth'])->group(function () {
         $totalHolidays = \App\Models\Holiday::count();
         $totalGallery = \App\Models\Gallery::count();
         $totalDepartments = \App\Models\Department::count();
+        $totalLeads = \App\Models\Lead::count();
+       
+        $yesterday = Carbon::yesterday();
+        $totalReports = \App\Models\Report::whereDate('created_at', $yesterday)->count(); //use carbon for display yesterday reports only
         return Inertia::render('dashboard', [
             'user' => auth()->user(),
             'totalEvents' => $totalEvents,
@@ -27,6 +32,8 @@ Route::middleware(['auth'])->group(function () {
             'totalHolidays' => $totalHolidays,
             'totalGallery' => $totalGallery,
             'totalDepartments' => $totalDepartments,
+            'totalReports' => $totalReports,
+            'totalLeads' => $totalLeads,
         ]);
     })->name('dashboard');
 
@@ -37,6 +44,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource("gallery", \App\Http\Controllers\GalleryController::class);
     Route::resource("department", \App\Http\Controllers\DepartmentController::class);
     Route::resource("reports", \App\Http\Controllers\ReportController::class);
+    Route::resource("layout", \App\Http\Controllers\LayoutController::class);
+    Route::resource('leads', \App\Http\Controllers\LeadController::class);
 });
 
 

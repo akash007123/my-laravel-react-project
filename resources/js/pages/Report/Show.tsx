@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import {formatDate} from '../utils'
 
 interface Props {
     report: Report;
@@ -20,10 +21,7 @@ export interface Report {
 }
 
 const toMinutes = (hours?: number) => Math.round(Number(hours ?? 0) * 60);
-const formatDate = (dateString: string) => {
-    const d = new Date(dateString);
-    return isNaN(d.getTime()) ? '-' : d.toLocaleString('en-US', { hour12: true });
-};
+
 
 const ReportsShow: React.FC<Props> = ({ report, user }) => {
     return (

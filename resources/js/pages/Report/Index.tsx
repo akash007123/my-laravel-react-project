@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, router, Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
+import {formatTime, formatDateOnly} from '../utils'
 
 interface Props {
     reports: {
@@ -33,23 +34,7 @@ const ReportsIndex: React.FC<Props> = ({ reports, user }) => {
             router.delete(`/reports/${id}`);
         }
     };
-
-    const formatTime = (dateString: string) => {
-        return new Date(dateString).toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true
-        });
-    };
-
-    const formatDateOnly = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        });
-    };
-
+    
     return (
         <AppLayout user={user}>
             <Head title="Reports" />

@@ -77,32 +77,7 @@ export default function Welcome() {
                     </div>
                 </section>
 
-                {/* <section className="bg-gray-100 dark:bg-[#1b1b1b] py-16 px-6 lg:px-20">
-                    <h2 className="text-3xl font-bold text-center mb-10">Why Choose Us?</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <div className="bg-white dark:bg-[#2b2b2b] p-6 rounded shadow">
-                            <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Fast" className="h-12 mb-4" />
-                            <h3 className="text-xl font-semibold mb-2">Fast Performance</h3>
-                            <p className="text-gray-600 dark:text-gray-400">
-                                Optimized for speed and responsiveness so your users have the best experience.
-                            </p>
-                        </div>
-                        <div className="bg-white dark:bg-[#2b2b2b] p-6 rounded shadow">
-                            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828817.png" alt="Secure" className="h-12 mb-4" />
-                            <h3 className="text-xl font-semibold mb-2">Secure & Reliable</h3>
-                            <p className="text-gray-600 dark:text-gray-400">
-                                Built with best practices for security and scalability.
-                            </p>
-                        </div>
-                        <div className="bg-white dark:bg-[#2b2b2b] p-6 rounded shadow">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3208/3208676.png" alt="Community" className="h-12 mb-4" />
-                            <h3 className="text-xl font-semibold mb-2">Active Community</h3>
-                            <p className="text-gray-600 dark:text-gray-400">
-                                Join a growing network of contributors and developers building together.
-                            </p>
-                        </div>
-                    </div>
-                </section> */}
+               
 
                 <footer className="text-center py-6 text-sm text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-700">
                     © {new Date().getFullYear()} Ayush's Community. All rights reserved.

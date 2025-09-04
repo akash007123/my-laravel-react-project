@@ -11,7 +11,7 @@ import { useInitials } from '@/hooks/use-initials';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem, type NavItem, type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Menu, Search, Users, Target, Calendar, Gift, Images, Slack, UserPen} from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Menu, Search, Users, Target, Calendar, Gift, Images, Slack, UserPen, LayoutTemplate, BadgeIndianRupee} from 'lucide-react';
 import AppLogo from './app-logo';
 import AppLogoIcon from './app-logo-icon';
 
@@ -55,6 +55,16 @@ const mainNavItems: NavItem[] = [
         title: 'Report',
         url: '/reports',
         icon: UserPen,
+    },
+    {
+        title: 'Layout',
+        url: '/layout',
+        icon: LayoutTemplate,
+    },
+    {
+        title: 'Leads',
+        url: '/leads',
+        icon: BadgeIndianRupee,
     },
 ];
 

@@ -68,4 +68,14 @@ class GalleryController extends Controller
         return redirect()->route('gallery.index');
     }
 
+     /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Gallery $gallery)
+    {
+        $gallery->delete();
+
+        return to_route('gallery.index');
+    }
+
 }

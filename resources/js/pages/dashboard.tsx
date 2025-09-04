@@ -8,8 +8,10 @@ import {
     CalendarDays,
     Image,
     Building,
+    UserPen,
+    BadgeIndianRupee
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, time } from 'framer-motion';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -28,6 +30,8 @@ export default function Dashboard({
     totalHolidays,
     totalGallery,
     totalDepartments,
+    totalReports,
+    totalLeads
 }: {
     user: DashboardUser;
     totalEvents?: number;
@@ -36,6 +40,8 @@ export default function Dashboard({
     totalHolidays?: number;
     totalGallery?: number;
     totalDepartments?: number;
+    totalReports?: number;
+    totalLeads?: number;
 }) {
     const stats = [
         {
@@ -80,6 +86,20 @@ export default function Dashboard({
             link: '/department',
             gradient: 'from-orange-500/10 to-orange-500/30',
         },
+        {
+            title: 'Total Reports',
+            count: totalReports || 0,
+            icon: <UserPen className="w-7 h-7 text-orange-600" />,
+            link: '/reports',
+            gradient: 'from-orange-500/10 to-orange-500/30',
+        },
+        {
+            title: 'Leads',
+            count: totalLeads || 0,
+            icon: <BadgeIndianRupee className='w-7 h-7 text-red-600'/>,
+            link: '/leads',
+            gradient: 'from-blue-100 to-red-200'
+        }
     ];
 
     return (

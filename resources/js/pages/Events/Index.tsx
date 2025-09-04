@@ -7,6 +7,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import {formatDateWithWeekday} from '../utils'
 
 interface EventsIndexProps {
     events: { data: Event[]; links: any[] };
@@ -192,14 +193,6 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
         }
     }
 
-    function formatDate(dateString: string) {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            weekday: 'short',
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-        });
-    }
 
     function formatTime(timeString: string) {
         return new Date(`2000-01-01T${timeString}`).toLocaleTimeString('en-US', {
@@ -270,16 +263,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
                 />
 
                 <div className="max-w-7xl mx-auto space-y-6">
-                    {/* Header */}
-                    <motion.div
-                        initial={{ y: -30, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ duration: 0.6 }}
-                        className="text-center mb-8"
-                    >
-                        <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Event Management</h1>
-                        <p className="text-gray-600 text-lg">Create, manage, and track your events</p>
-                    </motion.div>
+                  
 
                     {/* Tab Navigation */}
                     <motion.div
@@ -646,7 +630,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <div className="text-sm text-gray-900">{formatDate(event.event_date)}</div>
+                                                            <div className="text-sm text-gray-900">{formatDateWithWeekday(event.event_date)}</div>
                                                             <div className="text-sm text-gray-500">
                                                                 {formatTime(event.start_time)}
                                                                 {event.end_time && ` - ${formatTime(event.end_time)}`}
@@ -718,7 +702,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
                                                 )}
                                                 <div className="flex-1">
                                                     <p className="font-semibold text-gray-900">{event.title}</p>
-                                                    <p className="text-sm text-gray-500">{formatDate(event.event_date)} • {formatTime(event.start_time)}{event.end_time && ` - ${formatTime(event.end_time)}`}</p>
+                                                    <p className="text-sm text-gray-500">{formatDateWithWeekday(event.event_date)} • {formatTime(event.start_time)}{event.end_time && ` - ${formatTime(event.end_time)}`}</p>
                                                     <p className="text-sm text-gray-500">{event.location}</p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
@@ -786,7 +770,7 @@ export default function EventsIndex({ events, allEvents, tab = 'List', user }: E
                                             <div className="space-y-3 mb-4">
                                                 <div className="flex items-center text-sm text-gray-500">
                                                     <Calendar className="h-4 w-4 mr-2" />
-                                                    {formatDate(event.event_date)}
+                                                    {formatDateWithWeekday(event.event_date)}
                                                 </div>
                                                 <div className="flex items-center text-sm text-gray-500">
                                                     <Clock className="h-4 w-4 mr-2" />
