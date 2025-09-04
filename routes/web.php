@@ -20,7 +20,6 @@ Route::middleware(['auth'])->group(function () {
         $totalHolidays = \App\Models\Holiday::count();
         $totalGallery = \App\Models\Gallery::count();
         $totalDepartments = \App\Models\Department::count();
-        $totalLeads = \App\Models\Lead::count();
        
         $yesterday = Carbon::yesterday();
         $totalReports = \App\Models\Report::whereDate('created_at', $yesterday)->count(); //use carbon for display yesterday reports only
@@ -33,7 +32,6 @@ Route::middleware(['auth'])->group(function () {
             'totalGallery' => $totalGallery,
             'totalDepartments' => $totalDepartments,
             'totalReports' => $totalReports,
-            'totalLeads' => $totalLeads,
         ]);
     })->name('dashboard');
 
@@ -45,7 +43,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource("department", \App\Http\Controllers\DepartmentController::class);
     Route::resource("reports", \App\Http\Controllers\ReportController::class);
     Route::resource("layout", \App\Http\Controllers\LayoutController::class);
-    Route::resource('leads', \App\Http\Controllers\LeadController::class);
+    Route::resource("leads", \App\Http\Controllers\LeadController::class);
+    Route::resource("applicants", \App\Http\Controllers\ApplicantController::class);
 });
 
 

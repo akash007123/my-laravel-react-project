@@ -42,6 +42,15 @@ export default function LeadsIndex() {
     const [sortBy, setSortBy] = useState(filters?.sortBy || 'created_at');
     const [sortDir, setSortDir] = useState<'asc' | 'desc'>(filters?.sortDir || 'desc');
 
+    const [successMsg, setSuccessMsg] = useState<string | null>(flash?.success ?? null);
+    useEffect(() => {
+        if (flash?.success) {
+            setSuccessMsg(flash.success);
+            const t = setTimeout(() => setSuccessMsg(null), 3000);
+            return () => clearTimeout(t);
+        }
+    }, [flash?.success]);
+
     const countryOptions = useMemo(() => Country.getAllCountries().map(c => ({ code: c.isoCode, name: c.name, flag: `https://flagcdn.com/24x18/${c.isoCode.toLowerCase()}.png` })), []);
 
     useEffect(() => {
@@ -114,8 +123,8 @@ export default function LeadsIndex() {
             <Head title="Leads" />
 
             <div className="container mx-auto px-4 py-8 overflow-x-hidden">
-                {flash?.success && (
-                    <div className="mb-4 bg-green-50 border border-green-200 text-green-800 rounded-md p-3">{flash.success}</div>
+                {successMsg && (
+                    <div className="mb-4 bg-green-50 border border-green-200 text-green-800 rounded-md p-3">{successMsg}</div>
                 )}
 
                 <div className="flex items-center justify-between mb-6">
@@ -292,12 +301,3 @@ export default function LeadsIndex() {
         </AppLayout>
     );
 }
-
-// function renderFlag(countryName?: string | null) {
-//     if (!countryName) return null;
-//     const match = Country.getAllCountries().find(c => c.name === countryName);
-//     if (!match) return null;
-//     const src = `https://flagcdn.com/24x18/${match.isoCode.toLowerCase()}.png`;
-//     return <img src={src} alt="flag" width={18} height={14} className="rounded-sm" />;
-// }
-
