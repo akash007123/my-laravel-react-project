@@ -16,7 +16,10 @@ interface DepartmentIndexProps {
     department?: Department[];
 }
 
+
 export default function DepartmentIndex({ user, department = [] }: DepartmentIndexProps) {
+    console.log("Departments received:", department);
+
     const [open, setOpen] = useState(false);
     const [viewDept, setViewDept] = useState<Department | null>(null);
     const [editDept, setEditDept] = useState<Department | null>(null);

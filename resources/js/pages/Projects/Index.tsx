@@ -393,7 +393,7 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List', use
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Technologies</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Client</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Manager</th>
-                                                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Duration</th>
+                                                {/* <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Duration</th> */}
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700">Actions</th>
                                             </tr>
                                         </thead>
@@ -411,7 +411,7 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List', use
                                                             <img
                                                                 src={p.image_url}
                                                                 alt={p.title}
-                                                                className="h-12 w-12 object-cover rounded-xl shadow-md"
+                                                                className="h-12 w-12 rounded-xl shadow-md"
                                                             />
                                                         ) : (
                                                             <div className="h-12 w-12 bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl flex items-center justify-center">
@@ -436,26 +436,18 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List', use
                                                     </td>
                                                     <td className="px-6 py-4 text-gray-700">{p.client_name}</td>
                                                     <td className="px-6 py-4 text-gray-700">{p.project_manager}</td>
-                                                    <td className="px-6 py-4 text-gray-700">
+                                                    {/* <td className="px-6 py-4 text-gray-700">
                                                         <div className="text-sm">
                                                             <div>{p.start_date}</div>
                                                             <div className="text-gray-500">→ {p.end_date ?? 'Present'}</div>
                                                         </div>
-                                                    </td>
+                                                    </td> */}
                                                     <td className="px-6 py-4">
                                                         <div className="flex items-center gap-2">
-                                                            <motion.button
+                                                        <motion.button
                                                                 whileHover={{ scale: 1.1 }}
                                                                 whileTap={{ scale: 0.9 }}
-                                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                                                onClick={() => startEdit(p)}
-                                                            >
-                                                                <Pencil className="w-4 h-4" />
-                                                            </motion.button>
-                                                            <motion.button
-                                                                whileHover={{ scale: 1.1 }}
-                                                                whileTap={{ scale: 0.9 }}
-                                                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                                                className="cursor-pointer p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                                                             >
                                                                 <Link href={route('projects.show', p.id)}>
                                                                     <Eye className="w-4 h-4" />
@@ -464,7 +456,15 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List', use
                                                             <motion.button
                                                                 whileHover={{ scale: 1.1 }}
                                                                 whileTap={{ scale: 0.9 }}
-                                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                                                className="cursor-pointer p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                                                                onClick={() => startEdit(p)}
+                                                            >
+                                                                <Pencil className="w-4 h-4" />
+                                                            </motion.button>
+                                                            <motion.button
+                                                                whileHover={{ scale: 1.1 }}
+                                                                whileTap={{ scale: 0.9 }}
+                                                                className="cursor-pointer p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                                                 onClick={() => showDeleteConfirmation(p)}
                                                             >
                                                                 <Trash2 className="w-4 h-4" />

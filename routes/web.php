@@ -22,11 +22,56 @@ Route::middleware(['auth'])->group(function () {
         $totalDepartments = \App\Models\Department::count();
         $totalLeads = \App\Models\Lead::count();
         $totalApplicants = \App\Models\Applicant::count();
+        
+        $recentProjects = \App\Models\Project::latest()->take(3)->get()->map(function ($p) {
+            return [
+                'id' => $p->id,
+                'title' => $p->title,
+                'project_manager' => $p->project_manager,
+                'image_url' => $p->image_path ? asset('storage/'.$p->image_path) : null,
+            ];
+        });
+        $recentEvents= \App\Models\Event::latest()->take(3)->get()->map(function ($e) {
+            return [
+                'id' => $e->id,
+                'title' => $e->title,
+                'event_date' => $e->event_date,
+                'status' => $e->status,
+                'image_url' => $e->image_path ? asset('storage/'.$e->image_path) : null,
+            ];
+        });
+
+        $recentHolidays= \App\Models\Holiday::latest()->take(3)->get()->map(function ($h) {
+            return [
+                'id' => $h->id,
+                'holiday_name' => $h->holiday_name,
+                'holiday_date' => $h->holiday_date,
+                'day' => $h->day,
+            ];
+        });
+
+        $recentDepartments= \App\Models\Department::latest()->take(3)->get()->map(function ($d) {
+            return [
+                'id' => $d->id,
+                'department_name' => $d->department_name,
+                'department_head' => $d->department_head,
+            ];
+        });
+        $recentApplicants= \App\Models\Applicant::latest()->take(3)->get()->map(function ($a) {
+            return [
+                'id' => $a->id,
+                'name' => $a->name,
+                'email' => $a->email,
+                'mobile' => $a->mobile,
+            ];
+        });
+       
        
         $yesterday = Carbon::yesterday();
         $totalReports = \App\Models\Report::whereDate('created_at', $yesterday)->count(); //use carbon for display yesterday reports only
         return Inertia::render('dashboard', [
             'user' => auth()->user(),
+            // Counts
             'totalEvents' => $totalEvents,
             'totalUsers' => $totalUsers,
             'totalProjects' => $totalProjects,
@@ -36,6 +81,13 @@ Route::middleware(['auth'])->group(function () {
             'totalReports' => $totalReports,
             'totalLeads' => $totalLeads,
             'totalApplicants' => $totalApplicants,
+
+            // Show Recents
+            'recentProjects' => $recentProjects,
+            'recentEvents' => $recentEvents,
+            'recentHolidays' => $recentHolidays,
+            'recentDepartments' => $recentDepartments,
+            'recentApplicants' => $recentApplicants,
         ]);
     })->name('dashboard');
 

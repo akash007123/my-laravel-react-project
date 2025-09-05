@@ -29,14 +29,23 @@ class ReportController extends Controller
     {
         $validated = $request->validate([
             'report' => 'required|string|max:255',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
             'break_duration' => 'nullable|numeric', // minutes from UI
+            'total_working_hour' => 'nullable|numeric|min:0',
+            'total_office_hour' => 'nullable|numeric|min:0',
         ]);
 
-        $start = Carbon::parse($validated['start_time']);
-        $end = Carbon::parse($validated['end_time']);
-        if ($end->lessThanOrEqualTo($start)) {
+        // Get current date
+        $today = Carbon::today();
+        
+        // Combine current date with time inputs
+        $start = Carbon::createFromFormat('Y-m-d H:i', $today->format('Y-m-d') . ' ' . $validated['start_time']);
+        $end = Carbon::createFromFormat('Y-m-d H:i', $today->format('Y-m-d') . ' ' . $validated['end_time']);
+        
+        // Only add a day if end time is actually before start time (e.g., 11 PM to 2 AM)
+        // For normal work hours like 10:00 AM to 7:30 PM, this should NOT add a day
+        if ($end->lessThan($start)) {
             $end = $end->copy()->addDay();
         }
 
@@ -51,6 +60,8 @@ class ReportController extends Controller
             'working_hour' => round($workingMinutes / 60, 2),
             'total_hour' => round($totalMinutes / 60, 2),
             'break_duration' => round($breakMinutes / 60, 2),
+            'total_working_hour' => $validated['total_working_hour'] ?? 0,
+            'total_office_hour' => $validated['total_office_hour'] ?? 0,
         ]);
 
         return redirect()->route('reports.show', $report->id);
@@ -66,10 +77,6 @@ class ReportController extends Controller
 
     public function edit(Report $report)
     {
-        // Convert datetime to HTML datetime-local format
-        $report->start_time = optional($report->start_time)->format('Y-m-d\TH:i');
-        $report->end_time = optional($report->end_time)->format('Y-m-d\TH:i');
-
         return Inertia::render('Report/Edit', [
             'user' => auth()->user(),
             'report' => $report,
@@ -80,14 +87,23 @@ class ReportController extends Controller
     {
         $validated = $request->validate([
             'report' => 'required|string|max:255',
-            'start_time' => 'required|date',
-            'end_time' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
             'break_duration' => 'nullable|numeric',
+            'total_working_hour' => 'nullable|numeric|min:0',
+            'total_office_hour' => 'nullable|numeric|min:0',
         ]);
 
-        $start = Carbon::parse($validated['start_time']);
-        $end = Carbon::parse($validated['end_time']);
-        if ($end->lessThanOrEqualTo($start)) {
+        // Get the original date from the existing report
+        $originalDate = $report->start_time->format('Y-m-d');
+        
+        // Combine original date with new time inputs
+        $start = Carbon::createFromFormat('Y-m-d H:i', $originalDate . ' ' . $validated['start_time']);
+        $end = Carbon::createFromFormat('Y-m-d H:i', $originalDate . ' ' . $validated['end_time']);
+        
+        // Only add a day if end time is actually before start time (e.g., 11 PM to 2 AM)
+        // For normal work hours like 10:00 AM to 7:30 PM, this should NOT add a day
+        if ($end->lessThan($start)) {
             $end = $end->copy()->addDay();
         }
 
@@ -102,6 +118,8 @@ class ReportController extends Controller
             'working_hour' => round($workingMinutes / 60, 2),
             'total_hour' => round($totalMinutes / 60, 2),
             'break_duration' => round($breakMinutes / 60, 2),
+            'total_working_hour' => $validated['total_working_hour'] ?? 0,
+            'total_office_hour' => $validated['total_office_hour'] ?? 0,
         ]);
 
         return redirect()->route('reports.show', $report->id);

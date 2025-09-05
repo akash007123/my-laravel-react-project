@@ -3,6 +3,7 @@ import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Country }  from 'country-state-city';
 import {renderFlag, formatDateTime} from '../utils'
+import { Eye, Trash2, Pencil } from 'lucide-react';
 
 interface Lead {
     id: number;
@@ -172,12 +173,24 @@ export default function LeadsIndex() {
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4 text-sm text-gray-500 hidden lg:table-cell">{formatDateTime(l.created_at)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                                <div className="flex items-center gap-3">
-                                                    <button onClick={() => openEdit(l)} className="cursor-pointer text-blue-600 hover:text-blue-800">Edit</button>
-                                                    <button onClick={() => setDeleteLead(l)} className="cursor-pointer text-red-600 hover:text-red-800">Delete</button>
-                                                </div>
-                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div className="flex items-center justify-end space-x-3">
+                                                <button
+                                                    onClick={() => openEdit(l)}
+                                                    className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
+                                                    title="Edit"
+                                                >
+                                                    <Pencil className='w-4 h-4'/>
+                                                </button>
+                                                <button
+                                                    onClick={() => setDeleteLead(l)}
+                                                    className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
+                                                    title="Delete"
+                                                >
+                                                    <Trash2 className='w-4 h-4'/>
+                                                </button>
+                                            </div>
+                                        </td>
                                         </tr>
                                     ))
                                 )}

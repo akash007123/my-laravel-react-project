@@ -81,3 +81,19 @@ export function formatDateOnly(dateString: string) {
           day: 'numeric',
         });
   }
+
+  
+export function formatDateTimeDay(dateString: string) {
+  const d = new Date(dateString);
+  return isNaN(d.getTime())
+    ? '-'
+    : d.toLocaleString('en-US', {
+      weekday: 'long',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      });
+}

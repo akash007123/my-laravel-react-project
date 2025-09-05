@@ -82,25 +82,27 @@ export default function Index({ users, user }: { users: UserRow[]; user: AuthUse
                                     <td className="px-6 py-4 border-b">{id}</td>
                                     <td className="px-6 py-4 border-b font-medium text-gray-800">{name}</td>
                                     <td className="px-6 py-4 border-b text-gray-600">{email}</td>
-                                    <td className="px-6 py-4 border-b flex gap-2">
-                                        <Link
-                                            href={route('users.edit', id)}
-                                            className="flex items-center justify-center bg-yellow-400 hover:bg-yellow-500 text-white p-2 rounded-lg shadow transition-transform transform hover:scale-110"
-                                        >
-                                            <Pencil className="w-4 h-4" />
-                                        </Link>
+                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <div className='flex items-center justify-end space-x-3'>
                                         <Link
                                             href={route('users.show', id)}
-                                            className="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg shadow transition-transform transform hover:scale-110"
+                                            className="text-blue-600 hover:text-blue-900 p-1.5 rounded-md hover:bg-blue-50 transition-colors duration-150"
                                         >
                                             <Eye className="w-4 h-4" />
                                         </Link>
+                                        <Link
+                                            href={route('users.edit', id)}
+                                            className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
+                                        >
+                                            <Pencil className="w-4 h-4" />
+                                        </Link>
                                         <button
                                             onClick={() => handleDelete(id)}
-                                            className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg shadow transition-transform transform hover:scale-110"
+                                            className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
                                         >
                                             <Trash2 className="w-4 h-4" />
                                         </button>
+                                        </div>
                                     </td>
                                 </motion.tr>
                             ))}

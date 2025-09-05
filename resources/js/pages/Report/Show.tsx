@@ -16,14 +16,16 @@ export interface Report {
     working_hour: number;
     total_hour: number;
     break_duration: number;
+    total_working_hour: number;
+    total_office_hour: number;
     created_at?: string;
     updated_at?: string;
 }
 
 const toMinutes = (hours?: number) => Math.round(Number(hours ?? 0) * 60);
 
-
 const ReportsShow: React.FC<Props> = ({ report, user }) => {
+    console.log('Received report:', report); 
     return (
         <AppLayout user={user}>
             <Head title={`Report #${report.id}`} />
@@ -72,6 +74,18 @@ const ReportsShow: React.FC<Props> = ({ report, user }) => {
                             <label className="block text-gray-700 font-bold mb-2">Break Duration</label>
                             <p className="text-gray-900">
                                 {report.break_duration.toFixed(2)}h ({toMinutes(report.break_duration)}m)
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-gray-700 font-bold mb-2">Total Working Hour</label>
+                            <p className="text-gray-900">
+                                {report.total_working_hour?.toFixed(2) || '0.00'}h ({toMinutes(report.total_working_hour)}m)
+                            </p>
+                        </div>
+                        <div>
+                            <label className="block text-gray-700 font-bold mb-2">Total Office Hour</label>
+                            <p className="text-gray-900">
+                                {report.total_office_hour?.toFixed(2) || '0.00'}h ({toMinutes(report.total_office_hour)}m)
                             </p>
                         </div>
                     </div>

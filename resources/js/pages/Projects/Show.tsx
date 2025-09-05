@@ -90,7 +90,7 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                                             whileHover={{ scale: 1.05, rotate: 2 }}
                                             src={project.image_url}
                                             alt={project.title}
-                                            className="h-48 w-48 rounded-2xl object-cover shadow-2xl border-4 border-white/20"
+                                            className="h-48 w-48 rounded-2xl shadow-2xl border-4 border-white/20"
                                         />
                                     ) : (
                                         <motion.div

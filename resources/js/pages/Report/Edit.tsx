@@ -15,6 +15,8 @@ export interface Report {
     working_hour: number;
     total_hour: number;
     break_duration: number;
+    total_working_hour: number;
+    total_office_hour: number;
     created_at?: string;
     updated_at?: string;
 }
@@ -24,24 +26,40 @@ interface ReportFormData {
     start_time: string;
     end_time: string;
     break_duration: string;
+    total_working_hour: string;
+    total_office_hour: string;
 }
 
 const ReportsEdit: React.FC<Props> = ({ report, user }) => {
     const { data, setData, put, processing, errors } = useForm<ReportFormData>({
         report: report.report,
-        start_time: report.start_time,
-        end_time: report.end_time,
+        start_time: '',
+        end_time: '',
         break_duration: '',
+        total_working_hour: '',
+        total_office_hour: '',
     });
 
     useEffect(() => {
         const minutes = Math.round((report.break_duration ?? 0) * 60);
         setData('break_duration', String(minutes));
+        setData('total_working_hour', String(report.total_working_hour ?? 0));
+        setData('total_office_hour', String(report.total_office_hour ?? 0));
+        
+        // Extract time from datetime strings
+        if (report.start_time) {
+            const startDate = new Date(report.start_time);
+            setData('start_time', startDate.toTimeString().slice(0, 5));
+        }
+        if (report.end_time) {
+            const endDate = new Date(report.end_time);
+            setData('end_time', endDate.toTimeString().slice(0, 5));
+        }
     }, []);
 
     const toAMPM = (val: string) => {
         if (!val) return '';
-        const d = new Date(val);
+        const d = new Date(`2000-01-01T${val}`);
         return isNaN(d.getTime())
             ? ''
             : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -78,7 +96,7 @@ const ReportsEdit: React.FC<Props> = ({ report, user }) => {
                                 Start Time
                             </label>
                             <input
-                                type="datetime-local"
+                                type="time"
                                 value={data.start_time}
                                 onChange={(e) => setData('start_time', e.target.value)}
                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -92,7 +110,7 @@ const ReportsEdit: React.FC<Props> = ({ report, user }) => {
                                 End Time
                             </label>
                             <input
-                                type="datetime-local"
+                                type="time"
                                 value={data.end_time}
                                 onChange={(e) => setData('end_time', e.target.value)}
                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -113,6 +131,34 @@ const ReportsEdit: React.FC<Props> = ({ report, user }) => {
                                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                             />
                             {errors.break_duration && <p className="text-red-500 text-xs italic">{errors.break_duration}</p>}
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Total Working Hour</label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                value={data.total_working_hour}
+                                onChange={(e) => setData('total_working_hour', e.target.value)}
+                                placeholder="e.g. 8.5"
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                            {errors.total_working_hour && <p className="text-red-500 text-xs italic">{errors.total_working_hour}</p>}
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="block text-gray-700 text-sm font-bold mb-2">Total Office Hour</label>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.1"
+                                value={data.total_office_hour}
+                                onChange={(e) => setData('total_office_hour', e.target.value)}
+                                placeholder="e.g. 9.0"
+                                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            />
+                            {errors.total_office_hour && <p className="text-red-500 text-xs italic">{errors.total_office_hour}</p>}
                         </div>
                     </div>
 
