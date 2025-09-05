@@ -1,10 +1,8 @@
 import AppLayout from '@/layouts/app-layout';
 import ApplicantDetails from './ApplicantDetails';
-import { Head, useForm, usePage, router } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
-import { Country, State, City } from 'country-state-city';
-// console.log(Country.getAllCountries())
-console.log(State.getAllStates())
+import { Head, usePage, router } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 
 interface Applicant {
     id: number;
@@ -48,81 +46,22 @@ interface PageProps {
 export default function ApplicantsIndex() {
     const { auth, flash, applicants } = usePage<PageProps>().props;
 
-    const [createOpen, setCreateOpen] = useState(false);
-    const [editItem, setEditItem] = useState<Applicant | null>(null);
     const [viewItem, setViewItem] = useState<Applicant | null>(null);
     const [viewOpen, setViewOpen] = useState(false);
     const [deleteItem, setDeleteItem] = useState<Applicant | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showSuccess, setShowSuccess] = useState(!!flash?.success);
 
-    const createForm = useForm({
-        name: '', email: '', mobile: '', alternate_mobile: '', resume: '', skills: '', dob: '', marital_status: '', gender: '',
-        experience: '', joining_timeframe: '', bond_agreement: false, branch: '', graduate_year: '', street_address: '', country: '', state: '', city: ''
-    });
-    const editForm = useForm({
-        name: '', email: '', mobile: '', alternate_mobile: '', resume: '', skills: '', dob: '', marital_status: '', gender: '',
-        experience: '', joining_timeframe: '', bond_agreement: false, branch: '', graduate_year: '', street_address: '', country: '', state: '', city: ''
-    });
+    const handleFullPageRefresh = () => {
+        window.location.reload();
+    };
 
-    const countries = useMemo(() => Country.getAllCountries().map(c => ({ code: c.isoCode, name: c.name })), []);
-
-    // Dependent selects state for Create
-    const [createCountryCode, setCreateCountryCode] = useState<string>('');
-    const [createStateCode, setCreateStateCode] = useState<string>('');
-    const createStates = createCountryCode ? State.getStatesOfCountry(createCountryCode) : [];
-    const createCities = createCountryCode && createStateCode ? City.getCitiesOfState(createCountryCode, createStateCode) : [];
-
-    // Dependent selects state for Edit
-    const [editCountryCode, setEditCountryCode] = useState<string>('');
-    const [editStateCode, setEditStateCode] = useState<string>('');
-    const editStates = editCountryCode ? State.getStatesOfCountry(editCountryCode) : [];
-    const editCities = editCountryCode && editStateCode ? City.getCitiesOfState(editCountryCode, editStateCode) : [];
-
-    // Skills arrays UI
-    const [createSkills, setCreateSkills] = useState<string[]>([]);
-    const [createSkillInput, setCreateSkillInput] = useState('');
-    const [editSkills, setEditSkills] = useState<string[]>([]);
-    const [editSkillInput, setEditSkillInput] = useState('');
-
-    // Joining timeframe custom
-    const JOINING_OPTIONS = ['Same week', '2 weeks', '1 month', '3 months', 'Custom'];
-    const MARITAL_OPTIONS = ['Single', 'Married', 'Divorced', 'Widow'];
-    const GENDER_OPTIONS = ['Male', 'Female', 'Other'];
-
-    function addCreateSkill() { const v = createSkillInput.trim(); if (!v) return; if (!createSkills.includes(v)) setCreateSkills([...createSkills, v]); setCreateSkillInput(''); }
-    function removeCreateSkill(s: string) { setCreateSkills(createSkills.filter(x => x !== s)); }
-    function addEditSkill() { const v = editSkillInput.trim(); if (!v) return; if (!editSkills.includes(v)) setEditSkills([...editSkills, v]); setEditSkillInput(''); }
-    function removeEditSkill(s: string) { setEditSkills(editSkills.filter(x => x !== s)); }
-
-    function resolveCountryCodeByName(name?: string | null) { const found = countries.find(c => c.name === name); return found?.code || ''; }
-    function resolveStateCodeByName(list: { name: string; isoCode: string }[], name?: string | null) { const found = list.find(s => s.name === name); return found?.isoCode || ''; }
-
-    function openEdit(a: Applicant) {
-        setEditItem(a);
-        setEditSkills((a.skills || '').split(',').map(s=>s.trim()).filter(Boolean));
-        const cc = resolveCountryCodeByName(a.country);
-        setEditCountryCode(cc);
-        const stList = cc ? State.getStatesOfCountry(cc) : [];
-        const sc = resolveStateCodeByName(stList, a.state);
-        setEditStateCode(sc);
-        editForm.setData({
-            name: a.name || '', email: a.email || '', mobile: a.mobile || '', alternate_mobile: a.alternate_mobile || '', resume: a.resume || '', skills: a.skills || '',
-            dob: a.dob || '', marital_status: a.marital_status || '', gender: a.gender || '', experience: a.experience || '', joining_timeframe: a.joining_timeframe || '',
-            bond_agreement: !!a.bond_agreement, branch: a.branch || '', graduate_year: a.graduate_year || '', street_address: a.street_address || '',
-            country: a.country || '', state: a.state || '', city: a.city || ''
-        });
-    }
-
-    function submitCreate(e: React.FormEvent) {
-        e.preventDefault();
-        createForm.setData('skills', createSkills.join(','));
-        router.post(route('applicants.store'), createForm.data as any, { onSuccess: () => setCreateOpen(false) } as any);
-    }
-
-    function submitEdit(e: React.FormEvent) {
-        e.preventDefault(); if (!editItem) return;
-        editForm.setData('skills', editSkills.join(','));
-        router.post(route('applicants.update', editItem.id), { ...editForm.data, _method: 'put' } as any, { onSuccess: () => setEditItem(null) } as any);
-    }
+    // Filter applicants based on search query
+    const filteredApplicants = applicants.data.filter(applicant =>
+        applicant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        applicant.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        applicant.mobile.includes(searchQuery)
+    );
 
     function confirmDelete() { if (!deleteItem) return; router.post(route('applicants.destroy', deleteItem.id), { _method: 'delete' } as any, { onSuccess: () => setDeleteItem(null) } as any); }
 
@@ -138,43 +77,179 @@ export default function ApplicantsIndex() {
             // ignore
         }
     }
+    useEffect(() => {
+        if (flash?.success) {
+            setShowSuccess(true);
+            const timer = setTimeout(() => {
+                setShowSuccess(false);
+            }, 3000); // 3 seconds
+
+            return () => clearTimeout(timer);
+        }
+    }, [flash?.success]);
 
     return (
         <AppLayout user={auth.user}>
             <Head title="Applicants" />
 
-            <div className="container mx-auto px-4 py-8">
-                {flash?.success && <div className="mb-4 bg-green-50 border border-green-200 text-green-800 rounded-md p-3">{flash.success}</div>}
+            <div className="container mx-auto px-4 py-6">
+                {showSuccess && flash?.success && (
+                    <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-md shadow-sm transition-opacity duration-500 ease-in-out">
+                        <div className="flex items-center">
+                            <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    fillRule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                    clipRule="evenodd"
+                                />
+                            </svg>
+                            <span>{flash.success}</span>
+                        </div>
+                    </div>
+                )}
 
-                <div className="flex items-center justify_between mb-6">
-                    <h1 className="text-3xl font-bold text-gray-900">Applicants</h1>
-                    <button onClick={() => router.visit(route('applicants.create'))} className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">New Applicant</button>
+
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                    <div>
+                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Applicant Management</h1>
+                        <p className="text-gray-600 mt-1">Manage and review all job applicants</p>
+                    </div>
+                    <button
+                        onClick={() => router.visit(route('applicants.create'))}
+                        className="mt-4 md:mt-0 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center"
+                    >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        New Applicant
+                    </button>
                 </div>
 
-                <div className="bg-white rounded-lg shadow overflow-hidden">
+                {/* Search Filter */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
+                    <div className="p-4 border-b border-gray-200 flex justify-end">
+                        <div className="w-full max-w-md">
+                            <div className="flex flex-col md:flex-row md:items-center space-y-3 md:space-y-0 md:space-x-4">
+                                <div className="flex-1">
+                                    <div className="relative">
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg className="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path
+                                                    fillRule="evenodd"
+                                                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            placeholder="Search applicants by name, email or phone..."
+                                            className="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <button
+                                        onClick={handleFullPageRefresh}
+                                        className="cursor-pointer px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 flex items-center"
+                                    >
+                                        <RefreshCw />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
                     <div className="overflow-x-auto">
-                        <table className="w-full table-auto divide-y divide-gray-200">
+                        <table className="w-full">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Mobile</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {applicants.data.length === 0 ? (
-                                    <tr><td colSpan={4} className="px-6 py-4 text-center text-gray-500">No applicants found.</td></tr>
-                                ) : applicants.data.map(a => (
-                                    <tr key={a.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{a.name}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text_sm text-gray-500">{a.email}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text_sm text-gray-500">{a.mobile}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                            <div className="flex items-center gap-3">
-                                                <button onClick={() => openView(a.id)} className="cursor-pointer text-indigo-600 hover:text-indigo-800">View</button>
-                                                <button onClick={() => router.visit(route('applicants.edit', a.id))} className="cursor-pointer text-blue-600 hover:text-blue-800">Edit</button>
-                                                <button onClick={() => setDeleteItem(a)} className="cursor-pointer text-red-600 hover:text-red-800">Delete</button>
+                                {filteredApplicants.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={4} className="px-6 py-12 text-center">
+                                            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            <h3 className="mt-2 text-sm font-medium text-gray-900">No applicants found</h3>
+                                            <p className="mt-1 text-sm text-gray-500">
+                                                {searchQuery ? 'Try adjusting your search query' : 'Get started by creating a new applicant.'}
+                                            </p>
+                                            {!searchQuery && (
+                                                <div className="mt-6">
+                                                    <button
+                                                        onClick={() => router.visit(route('applicants.create'))}
+                                                        className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                                    >
+                                                        New Applicant
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ) : filteredApplicants.map(a => (
+                                    <tr key={a.id} className="hover:bg-gray-50 transition-colors duration-150">
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="flex items-center">
+                                                <div className="flex-shrink-0 h-10 w-10">
+                                                    <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                                                        <span className="text-blue-800 font-medium">
+                                                            {a.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="ml-4">
+                                                    <div className="text-sm font-medium text-gray-900">{a.name}</div>
+                                                    <div className="text-sm text-gray-500">{a.experience || 'No experience'}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">{a.email}</div>
+                                            <div className="text-sm text-gray-500">{a.mobile}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <div className="text-sm text-gray-900">{a.experience}</div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <div className="flex items-center justify-end space-x-3">
+                                                <button
+                                                    onClick={() => openView(a.id)}
+                                                    className="text-blue-600 hover:text-blue-900 p-1.5 rounded-md hover:bg-blue-50 transition-colors duration-150"
+                                                    title="View details"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    onClick={() => router.visit(route('applicants.edit', a.id))}
+                                                    className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
+                                                    title="Edit"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    onClick={() => setDeleteItem(a)}
+                                                    className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
+                                                    title="Delete"
+                                                >
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -182,247 +257,102 @@ export default function ApplicantsIndex() {
                             </tbody>
                         </table>
                     </div>
+
+                    {applicants.data.length > 0 && (
+                        <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-700">
+                                        Showing <span className="font-medium">{applicants.data.length}</span> of{' '}
+                                        <span className="font-medium">{applicants.total}</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <a href="#" className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span className="sr-only">Previous</span>
+                                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </a>
+                                        <a href="#" className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            1
+                                        </a>
+                                        <a href="#" className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                            2
+                                        </a>
+                                        <a href="#" className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span className="sr-only">Next</span>
+                                            <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
+
+                {/* Delete Confirmation Modal */}
+                {deleteItem && (
+                    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 animate-fade-in">
+                        <div className="bg-white rounded-xl w-full max-w-md p-6">
+                            <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
+                                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 text-center mb-2">Delete Applicant</h3>
+                            <p className="text-sm text-gray-500 text-center mb-6">
+                                Are you sure you want to delete <span className="font-medium">{deleteItem.name}</span>? This action cannot be undone.
+                            </p>
+                            <div className="flex justify-center gap-3">
+                                <button
+                                    onClick={() => setDeleteItem(null)}
+                                    className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmDelete}
+                                    className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200"
+                                >
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* View Modal */}
+                {viewOpen && viewItem && (
+                    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 animate-fade-in">
+                        <div className="bg-white rounded-xl w-full max-w-4xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+                            <div className=" justify-end px-6 py-4 border-b">
+                                <h3 className="text-xl font-semibold text-gray-900">Applicant Details</h3>
+                                <button
+                                    onClick={() => { setViewOpen(false); setViewItem(null); }}
+                                    className="cursor-pointer text-gray-500 p-1 rounded-full hover:bg-gray-100"
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <ApplicantDetails applicant={viewItem as any} embedded />
+                            <div className="flex justify-end px-6 py-4 border-t">
+                                <button
+                                    onClick={() => { setViewOpen(false); setViewItem(null); }}
+                                    className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
-
-            {createOpen && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative">
-                        <button onClick={() => setCreateOpen(false)} className="cursor-pointer absolute top-3 right-3 text-gray-500 hover:text-gray-700">×</button>
-                        <h2 className="text-lg font-semibold mb-4">New Applicant</h2>
-                        <form onSubmit={submitCreate} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Name *</label><input value={createForm.data.name} onChange={e=>createForm.setData('name', e.target.value)} className="w-full px-3 py-2 border rounded" required /></div>
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Email *</label><input type="email" value={createForm.data.email} onChange={e=>createForm.setData('email', e.target.value)} className="w-full px-3 py-2 border rounded" required /></div>
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Mobile *</label><input value={createForm.data.mobile} onChange={e=>createForm.setData('mobile', e.target.value)} className="w-full px-3 py-2 border rounded" required /></div>
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Alt. Mobile</label><input value={createForm.data.alternate_mobile} onChange={e=>createForm.setData('alternate_mobile', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            {/* Skills (chips) */}
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Skills</label>
-                                <div className="flex gap-2 mb-2 flex-wrap">
-                                    {createSkills.map(s => (
-                                        <span key={s} className="inline-flex items-center bg-blue-50 text-blue-800 px-2 py-1 rounded text-xs">
-                                            {s}
-                                            <button type="button" onClick={()=>removeCreateSkill(s)} className="ml-2 text-blue-700">×</button>
-                                        </span>
-                                    ))}
-                                </div>
-                                <div className="flex gap-2">
-                                    <input value={createSkillInput} onChange={e=>setCreateSkillInput(e.target.value)} onKeyDown={e=>{ if (e.key==='Enter'){ e.preventDefault(); addCreateSkill(); } }} className="w-full px-3 py-2 border rounded" placeholder="Type skill and press Enter" />
-                                    <button type="button" onClick={addCreateSkill} className="px-3 py-2 border rounded">Add</button>
-                                </div>
-                            </div>
-
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">DOB</label><input type="date" value={createForm.data.dob} onChange={e=>createForm.setData('dob', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            {/* Marital Status */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
-                                <select value={createForm.data.marital_status} onChange={e=>createForm.setData('marital_status', e.target.value)} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {MARITAL_OPTIONS.map(o=> (<option key={o} value={o}>{o}</option>))}
-                                </select>
-                            </div>
-
-                            {/* Gender */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                                <select value={createForm.data.gender} onChange={e=>createForm.setData('gender', e.target.value)} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {GENDER_OPTIONS.map(o=> (<option key={o} value={o}>{o}</option>))}
-                                </select>
-                            </div>
-
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience</label><input value={createForm.data.experience} onChange={e=>createForm.setData('experience', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            {/* Joining Timeframe */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Joining Timeframe</label>
-                                <select value={createForm.data.joining_timeframe} onChange={e=>createForm.setData('joining_timeframe', e.target.value)} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {JOINING_OPTIONS.map(o=> (<option key={o} value={o}>{o}</option>))}
-                                </select>
-                                {createForm.data.joining_timeframe === 'Custom' && (
-                                    <input className="mt-2 w-full px-3 py-2 border rounded" placeholder="Enter custom timeframe" onChange={e=>createForm.setData('joining_timeframe', e.target.value)} />
-                                )}
-                            </div>
-
-                            {/* Bond Agreement */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Bond Agreement</label>
-                                <select value={createForm.data.bond_agreement ? 'Yes' : 'No'} onChange={e=>createForm.setData('bond_agreement', e.target.value === 'Yes')} className="w-full px-3 py-2 border rounded">
-                                    <option>No</option>
-                                    <option>Yes</option>
-                                </select>
-                            </div>
-
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Branch</label><input value={createForm.data.branch} onChange={e=>createForm.setData('branch', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Graduate Year</label><input value={createForm.data.graduate_year} onChange={e=>createForm.setData('graduate_year', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Street Address</label><input value={createForm.data.street_address} onChange={e=>createForm.setData('street_address', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            {/* Country/State/City dependent selects (bind value to codes) */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                                <select value={createCountryCode} onChange={e=>{ const code = e.target.value; setCreateCountryCode(code); setCreateStateCode(''); const name = countries.find(c=>c.code===code)?.name || ''; createForm.setData('country', name); createForm.setData('state',''); createForm.setData('city',''); }} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {countries.map(c=>(<option key={c.code} value={c.code}>{c.name}</option>))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
-                                <select value={createStateCode} onChange={e=>{ const sc = e.target.value; setCreateStateCode(sc); const name = createStates.find(s=>s.isoCode===sc)?.name || ''; createForm.setData('state', name); createForm.setData('city',''); }} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {createStates.map(s=>(<option key={s.isoCode} value={s.isoCode}>{s.name}</option>))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                                <select value={createForm.data.city} onChange={e=>createForm.setData('city', e.target.value)} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {createCities.map(c=>(<option key={`${c.name}-${c.latitude}-${c.longitude}`} value={c.name}>{c.name}</option>))}
-                                </select>
-                            </div>
-
-                            <div className="md-ccoal-span-2 flex justify-end gap-3 mt-2"><button type="button" onClick={()=>setCreateOpen(false)} className="px-4 py-2 text-gray-600">Cancel</button><button type="submit" className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded">Create</button></div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {editItem && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative">
-                        <button onClick={() => setEditItem(null)} className="cursor-pointer absolute top-3 right-3 text-gray-500 hover:text-gray-700">×</button>
-                        <h2 className="text-lg font-semibold mb-4">Edit Applicant</h2>
-                        <form onSubmit={submitEdit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Name *</label><input value={editForm.data.name} onChange={e=>editForm.setData('name', e.target.value)} className="w-full px-3 py-2 border rounded" required /></div>
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Email *</label><input type="email" value={editForm.data.email} onChange={e=>editForm.setData('email', e.target.value)} className="w-full px-3 py-2 border rounded" required /></div>
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Mobile *</label><input value={editForm.data.mobile} onChange={e=>editForm.setData('mobile', e.target.value)} className="w-full px-3 py-2 border rounded" required /></div>
-                            <div><label className="block text-sm font-medium text-gray-700 mb-1">Alt. Mobile</label><input value={editForm.data.alternate_mobile} onChange={e=>editForm.setData('alternate_mobile', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            {/* Skills (chips) */}
-                            <div className="md:col-span-2">
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Skills</label>
-                                <div className="flex gap-2 mb-2 flex-wrap">
-                                    {editSkills.map(s => (
-                                        <span key={s} className="inline-flex items-center bg-blue-50 text-blue-800 px-2 py-1 rounded text-xs">
-                                            {s}
-                                            <button type="button" onClick={()=>removeEditSkill(s)} className="ml-2 text-blue-700">×</button>
-                                        </span>
-                                    ))}
-                                </div>
-                                <div className="flex gap-2">
-                                    <input value={editSkillInput} onChange={e=>setEditSkillInput(e.target.value)} onKeyDown={e=>{ if (e.key==='Enter'){ e.preventDefault(); addEditSkill(); } }} className="w-full px-3 py-2 border rounded" placeholder="Type skill and press Enter" />
-                                    <button type="button" onClick={addEditSkill} className="px-3 py-2 border rounded">Add</button>
-                                </div>
-                            </div>
-
-                            <div><label className="block text_sm font-medium text-gray-700 mb-1">DOB</label><input type="date" value={editForm.data.dob} onChange={e=>editForm.setData('dob', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            {/* Marital Status */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Marital Status</label>
-                                <select value={editForm.data.marital_status} onChange={e=>editForm.setData('marital_status', e.target.value)} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {MARITAL_OPTIONS.map(o=> (<option key={o} value={o}>{o}</option>))}
-                                </select>
-                            </div>
-
-                            {/* Gender */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-                                <select value={editForm.data.gender} onChange={e=>editForm.setData('gender', e.target.value)} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {GENDER_OPTIONS.map(o=> (<option key={o} value={o}>{o}</option>))}
-                                </select>
-                            </div>
-
-                            <div><label className="block text_sm font-medium text-gray-700 mb-1">Experience</label><input value={editForm.data.experience} onChange={e=>editForm.setData('experience', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            {/* Joining Timeframe */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Joining Timeframe</label>
-                                <select value={editForm.data.joining_timeframe} onChange={e=>editForm.setData('joining_timeframe', e.target.value)} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {JOINING_OPTIONS.map(o=> (<option key={o} value={o}>{o}</option>))}
-                                </select>
-                                {editForm.data.joining_timeframe === 'Custom' && (
-                                    <input className="mt-2 w-full px-3 py-2 border rounded" placeholder="Enter custom timeframe" value={editForm.data.joining_timeframe} onChange={e=>editForm.setData('joining_timeframe', e.target.value)} />
-                                )}
-                            </div>
-
-                            {/* Bond Agreement */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Bond Agreement</label>
-                                <select value={editForm.data.bond_agreement ? 'Yes' : 'No'} onChange={e=>editForm.setData('bond_agreement', e.target.value === 'Yes')} className="w-full px-3 py-2 border rounded">
-                                    <option>No</option>
-                                    <option>Yes</option>
-                                </select>
-                            </div>
-
-                            <div><label className="block text_sm font-medium text-gray-700 mb-1">Branch</label><input value={editForm.data.branch} onChange={e=>editForm.setData('branch', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-                            <div><label className="block text_sm font-medium text-gray-700 mb-1">Graduate Year</label><input value={editForm.data.graduate_year} onChange={e=>editForm.setData('graduate_year', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            <div className="md:col-span-2"><label className="block text_sm font-medium text-gray-700 mb-1">Street Address</label><input value={editForm.data.street_address} onChange={e=>editForm.setData('street_address', e.target.value)} className="w-full px-3 py-2 border rounded" /></div>
-
-                            {/* Country/State/City dependent selects (bind value to codes) */}
-                            <div>
-                                <label className="block text_sm font-medium text-gray-700 mb-1">Country</label>
-                                <select value={editCountryCode} onChange={e=>{ const code = e.target.value; setEditCountryCode(code); setEditStateCode(''); const name = countries.find(c=>c.code===code)?.name || ''; editForm.setData('country', name); editForm.setData('state',''); editForm.setData('city',''); }} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {countries.map(c=>(<option key={c.code} value={c.code}>{c.name}</option>))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text_sm font-medium text-gray-700 mb-1">State</label>
-                                <select value={editStateCode} onChange={e=>{ const sc = e.target.value; setEditStateCode(sc); const name = editStates.find(s=>s.isoCode===sc)?.name || ''; editForm.setData('state', name); editForm.setData('city',''); }} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {editStates.map(s=>(<option key={s.isoCode} value={s.isoCode}>{s.name}</option>))}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text_sm font-medium text-gray-700 mb-1">City</label>
-                                <select value={editForm.data.city} onChange={e=>editForm.setData('city', e.target.value)} className="w-full px-3 py-2 border rounded">
-                                    <option value="">Select</option>
-                                    {editCities.map(c=>(<option key={`${c.name}-${c.latitude}-${c.longitude}`} value={c.name}>{c.name}</option>))}
-                                </select>
-                            </div>
-
-                            <div className="md:col-span-2 flex justify-end gap-3 mt-2"><button type="button" onClick={()=>setEditItem(null)} className="px-4 py-2 text-gray-600">Cancel</button><button type="submit" className="cursor-pointer px-4 py-2 bg-blue-600 text-white rounded">Update</button></div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {deleteItem && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg w-full max-w-sm p-6">
-                        <h3 className="text-lg font-semibold mb-4">Delete Applicant</h3>
-                        <p className="text-sm text-gray-600 mb-6">Are you sure you want to delete {deleteItem.name}?</p>
-                        <div className="flex justify-end gap-3">
-                            <button onClick={()=>setDeleteItem(null)} className="px-4 py-2 text-gray-600 hover:text-gray-800">Cancel</button>
-                            <button onClick={confirmDelete} className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {viewOpen && viewItem && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg w-full max-w-3xl p-0 overflow-hidden">
-                        <div className="flex items-center justify-between px-6 py-4 border-b">
-                            <h3 className="text-lg font-semibold">Applicant Details</h3>
-                            <button onClick={()=>{ setViewOpen(false); setViewItem(null); }} className="cursor-pointer text-gray-500">×</button>
-                        </div>
-                        {/* Reuse the same resume layout as Show.tsx */}
-                        <ApplicantDetails applicant={viewItem as any} embedded />
-                        <div className="cursor-pointer flex justify-end px-6 py-4 border-t">
-                            <button onClick={()=>{ setViewOpen(false); setViewItem(null); }} className="px-4 py-2 border rounded cursor-pointer">Close</button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </AppLayout>
     );
-} 
+}

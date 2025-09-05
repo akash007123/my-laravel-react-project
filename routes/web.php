@@ -20,6 +20,8 @@ Route::middleware(['auth'])->group(function () {
         $totalHolidays = \App\Models\Holiday::count();
         $totalGallery = \App\Models\Gallery::count();
         $totalDepartments = \App\Models\Department::count();
+        $totalLeads = \App\Models\Lead::count();
+        $totalApplicants = \App\Models\Applicant::count();
        
         $yesterday = Carbon::yesterday();
         $totalReports = \App\Models\Report::whereDate('created_at', $yesterday)->count(); //use carbon for display yesterday reports only
@@ -32,6 +34,8 @@ Route::middleware(['auth'])->group(function () {
             'totalGallery' => $totalGallery,
             'totalDepartments' => $totalDepartments,
             'totalReports' => $totalReports,
+            'totalLeads' => $totalLeads,
+            'totalApplicants' => $totalApplicants,
         ]);
     })->name('dashboard');
 

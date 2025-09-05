@@ -31,7 +31,8 @@ export default function Dashboard({
     totalGallery,
     totalDepartments,
     totalReports,
-    totalLeads
+    totalLeads,
+    totalApplicants,
 }: {
     user: DashboardUser;
     totalEvents?: number;
@@ -42,6 +43,7 @@ export default function Dashboard({
     totalDepartments?: number;
     totalReports?: number;
     totalLeads?: number;
+    totalApplicants?: number;
 }) {
     const stats = [
         {
@@ -99,7 +101,14 @@ export default function Dashboard({
             icon: <BadgeIndianRupee className='w-7 h-7 text-red-600'/>,
             link: '/leads',
             gradient: 'from-blue-100 to-red-200'
-        }
+        },
+        {
+            title: 'Applicants',
+            count: totalApplicants || 0,
+            icon: <Users className="w-7 h-7 text-indigo-600" />,
+            link: '/applicants',
+            gradient: 'from-indigo-500/10 to-indigo-500/30',
+        },
     ];
 
     return (
@@ -113,7 +122,7 @@ export default function Dashboard({
                 transition={{ duration: 0.6, ease: 'easeOut' }}
             >
                 {/* Welcome Card */}
-                <motion.div
+                {/* <motion.div
                     className="bg-white/70 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-gray-100"
                     whileHover={{ scale: 1.02 }}
                     transition={{ type: 'spring', stiffness: 200, damping: 15 }}
@@ -129,7 +138,7 @@ export default function Dashboard({
                             <span className="font-semibold">Email:</span> {user.email}
                         </p>
                     </div>
-                </motion.div>
+                </motion.div> */}
 
                 {/* Stats Section */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
