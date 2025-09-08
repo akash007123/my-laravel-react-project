@@ -25,26 +25,31 @@ class ReportController extends Controller
         ]);
     }
 
+    private function minutesToTimeString(int $minutes): string
+    {
+        $minutes = max(0, $minutes);
+        $hours = intdiv($minutes, 60);
+        $mins = $minutes % 60;
+        // MySQL TIME can store large hours (e.g., 838:59:59 upper bound), so we keep HH:MM:SS
+        return sprintf('%02d:%02d:00', $hours, $mins);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'report' => 'required|string|max:255',
+            'report' => 'required|string',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
-            'break_duration' => 'nullable|numeric', // minutes from UI
-            'total_working_hour' => 'nullable|numeric|min:0',
-            'total_office_hour' => 'nullable|numeric|min:0',
+            'break_duration' => 'nullable|numeric', // minutes
         ]);
 
-        // Get current date
+        $startTimeStr = $validated['start_time'] . ':00';
+        $endTimeStr = $validated['end_time'] . ':00';
+
+        // Use today's date only for calculating duration properly (including overnight)
         $today = Carbon::today();
-        
-        // Combine current date with time inputs
         $start = Carbon::createFromFormat('Y-m-d H:i', $today->format('Y-m-d') . ' ' . $validated['start_time']);
         $end = Carbon::createFromFormat('Y-m-d H:i', $today->format('Y-m-d') . ' ' . $validated['end_time']);
-        
-        // Only add a day if end time is actually before start time (e.g., 11 PM to 2 AM)
-        // For normal work hours like 10:00 AM to 7:30 PM, this should NOT add a day
         if ($end->lessThan($start)) {
             $end = $end->copy()->addDay();
         }
@@ -55,13 +60,11 @@ class ReportController extends Controller
 
         $report = Report::create([
             'report' => $validated['report'],
-            'start_time' => $start,
-            'end_time' => $end,
-            'working_hour' => round($workingMinutes / 60, 2),
-            'total_hour' => round($totalMinutes / 60, 2),
-            'break_duration' => round($breakMinutes / 60, 2),
-            'total_working_hour' => $validated['total_working_hour'] ?? 0,
-            'total_office_hour' => $validated['total_office_hour'] ?? 0,
+            'start_time' => $startTimeStr,
+            'end_time' => $endTimeStr,
+            'working_hour' => $this->minutesToTimeString($workingMinutes),
+            'total_hour' => $this->minutesToTimeString($totalMinutes),
+            'break_duration' => $this->minutesToTimeString($breakMinutes),
         ]);
 
         return redirect()->route('reports.show', $report->id);
@@ -86,23 +89,19 @@ class ReportController extends Controller
     public function update(Request $request, Report $report)
     {
         $validated = $request->validate([
-            'report' => 'required|string|max:255',
+            'report' => 'required|string',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
-            'break_duration' => 'nullable|numeric',
-            'total_working_hour' => 'nullable|numeric|min:0',
-            'total_office_hour' => 'nullable|numeric|min:0',
+            'break_duration' => 'nullable|numeric', // minutes
         ]);
 
-        // Get the original date from the existing report
-        $originalDate = $report->start_time->format('Y-m-d');
-        
-        // Combine original date with new time inputs
-        $start = Carbon::createFromFormat('Y-m-d H:i', $originalDate . ' ' . $validated['start_time']);
-        $end = Carbon::createFromFormat('Y-m-d H:i', $originalDate . ' ' . $validated['end_time']);
-        
-        // Only add a day if end time is actually before start time (e.g., 11 PM to 2 AM)
-        // For normal work hours like 10:00 AM to 7:30 PM, this should NOT add a day
+        $startTimeStr = $validated['start_time'] . ':00';
+        $endTimeStr = $validated['end_time'] . ':00';
+
+        // Calculate totals using the report's original date as reference for overnight logic
+        $referenceDate = now()->format('Y-m-d');
+        $start = Carbon::createFromFormat('Y-m-d H:i', $referenceDate . ' ' . $validated['start_time']);
+        $end = Carbon::createFromFormat('Y-m-d H:i', $referenceDate . ' ' . $validated['end_time']);
         if ($end->lessThan($start)) {
             $end = $end->copy()->addDay();
         }
@@ -113,13 +112,11 @@ class ReportController extends Controller
 
         $report->update([
             'report' => $validated['report'],
-            'start_time' => $start,
-            'end_time' => $end,
-            'working_hour' => round($workingMinutes / 60, 2),
-            'total_hour' => round($totalMinutes / 60, 2),
-            'break_duration' => round($breakMinutes / 60, 2),
-            'total_working_hour' => $validated['total_working_hour'] ?? 0,
-            'total_office_hour' => $validated['total_office_hour'] ?? 0,
+            'start_time' => $startTimeStr,
+            'end_time' => $endTimeStr,
+            'working_hour' => $this->minutesToTimeString($workingMinutes),
+            'total_hour' => $this->minutesToTimeString($totalMinutes),
+            'break_duration' => $this->minutesToTimeString($breakMinutes),
         ]);
 
         return redirect()->route('reports.show', $report->id);

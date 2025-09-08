@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, router, Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Eye, Trash2, Pencil } from 'lucide-react';
-import {formatTime, formatDateOnly} from '../utils'
+import { formatTime, formatDateOnly, formatMinute, hoursToHHMM } from '../utils'
 
 interface Props {
     reports: {
@@ -20,9 +20,7 @@ export interface Report {
     end_time: string;
     working_hour: number;
     total_hour: number;
-    break_duration: number;
-    total_working_hour: number;
-    total_office_hour: number;
+    break_duration: string;
     created_at?: string;
     updated_at?: string;
 }
@@ -30,9 +28,9 @@ export interface Report {
 const toMinutes = (hours?: number) => Math.round(Number(hours ?? 0) * 60);
 
 const ReportsIndex: React.FC<Props> = ({ reports, user }) => {
-    console.log('Received report:', reports); 
-    
-    
+    console.log('Received report:', reports);
+
+
     const [viewItem, setViewItem] = useState<Report | null>(null);
 
     const handleDelete = (id: number) => {
@@ -40,7 +38,7 @@ const ReportsIndex: React.FC<Props> = ({ reports, user }) => {
             router.delete(`/reports/${id}`);
         }
     };
-    
+
     return (
         <AppLayout user={user}>
             <Head title="Reports" />
@@ -60,9 +58,10 @@ const ReportsIndex: React.FC<Props> = ({ reports, user }) => {
                         <thead>
                             <tr>
                                 <th className="px-4 py-2">Date</th>
-                                <th className="px-4 py-2">Report</th>
+                                {/* <th className="px-4 py-2">Report</th> */}
                                 <th className="px-4 py-2">Start Time</th>
                                 <th className="px-4 py-2">End Time</th>
+                                <th className='pc-4 py-2'>Break Duration</th>
                                 <th className="px-4 py-2">Total Working Hour</th>
                                 <th className="px-4 py-2">Total Office Hour</th>
                                 <th className="px-4 py-2">Actions</th>
@@ -72,32 +71,33 @@ const ReportsIndex: React.FC<Props> = ({ reports, user }) => {
                             {reports.data.map((report) => (
                                 <tr key={report.id}>
                                     <td className=" py-2 text-gray-500 text-center">{formatDateOnly(report.created_at ?? report.start_time)}</td>
-                                    <td className=" py-2 text-gray-500 text-center">{report.report}</td>
+                                    {/* <td className=" py-2 text-gray-500 text-center">{report.report}</td> */}
                                     <td className=" py-2 text-gray-500 text-center">{formatTime(report.start_time)}</td>
                                     <td className=" py-2 text-gray-500 text-center">{formatTime(report.end_time)}</td>
-                                    <td className=" py-2 text-gray-500 text-center">{report.total_working_hour?.toFixed(2)}h</td>
-                                    <td className=" py-2 text-gray-500 text-center">{report.total_office_hour?.toFixed(2)}h</td>
+                                    <td className='py-2 text-gray-500 text-center'>{formatMinute(report.break_duration)} min</td>
+                                    <td className=" py-2 text-gray-500 text-center">{hoursToHHMM(report.working_hour)}</td>
+                                    <td className=" py-2 text-gray-500 text-center">{hoursToHHMM(report.total_hour)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <div className="flex items-center justify-end space-x-3">
-                                        <button
-                                            onClick={() => setViewItem(report)}
-                                            className="text-blue-600 hover:text-blue-900 p-1.5 rounded-md hover:bg-blue-50 transition-colors duration-150"
-                                            aria-label="View"
-                                        >
-                                            <Eye className='w-4 h-4'/>
-                                        </button>
-                                        <Link
-                                            href={`/reports/${report.id}/edit`}
-                                            className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
-                                        >
-                                             <Pencil className='w-4 h-4'/>
-                                        </Link>
-                                        <button
-                                            onClick={() => handleDelete(report.id)}
-                                            className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
-                                        >
-                                            <Trash2 className='w-4 h-4'/>
-                                        </button>
+                                            <button
+                                                onClick={() => setViewItem(report)}
+                                                className="cursor-pointer text-blue-600 hover:text-blue-900 p-1.5 rounded-md hover:bg-blue-50 transition-colors duration-150"
+                                                aria-label="View"
+                                            >
+                                                <Eye className='w-4 h-4' />
+                                            </button>
+                                            <Link
+                                                href={`/reports/${report.id}/edit`}
+                                                className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
+                                            >
+                                                <Pencil className='w-4 h-4' />
+                                            </Link>
+                                            <button
+                                                onClick={() => handleDelete(report.id)}
+                                                className="cursor-pointer text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
+                                            >
+                                                <Trash2 className='w-4 h-4' />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -120,7 +120,7 @@ const ReportsIndex: React.FC<Props> = ({ reports, user }) => {
 
             {viewItem && (
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative">
+                    <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
                         <button
                             onClick={() => setViewItem(null)}
                             className="cursor-pointer absolute top-3 right-3 text-gray-500 hover:text-gray-700"
@@ -133,34 +133,42 @@ const ReportsIndex: React.FC<Props> = ({ reports, user }) => {
                         </h2>
 
                         <div className="grid grid-cols-2 gap-4 text-sm">
-                            <div className='mb-2'>
-                                <div className="text-gray-500">Date</div>
-                                <div className="font-medium text-rose-800 bg-rose-100 p-2">{formatDateOnly(viewItem.created_at ?? viewItem.start_time)}</div>
-                            </div>
+                            {/* Left Side */}
                             <div>
                                 <div className="text-gray-500">Report</div>
-                                <div className="font-medium text-orange-800 bg-orange-100 p-2">{viewItem.report}</div>
+                                <div className="font-medium text-gray-700 border rounded-lg p-2">{viewItem.report}</div>
                             </div>
+
+                            {/* Right Side */}
                             <div>
-                                <div className="text-gray-500">Start Time</div>
-                                <div className="font-medium text-blue-800 bg-blue-100 p-2">{formatTime(viewItem.start_time)}</div>
-                            </div>
-                            <div>
-                                <div className="text-gray-500">End Time</div>
-                                <div className="font-medium text-lime-800 bg-lime-100 p-2">{formatTime(viewItem.end_time)}</div>
-                            </div>
-                            <div>
-                                <div className="text-gray-500">Total Working Hour</div>
-                                <div className="font-medium text-purple-800 bg-purple-100 p-2">{viewItem.total_working_hour?.toFixed(2) || '0.00'}h</div>
-                            </div>
-                            <div>
-                                <div className="text-gray-500">Total Office Hour</div>
-                                <div className="font-medium text-indigo-800 bg-indigo-100 p-2">{viewItem.total_office_hour?.toFixed(2) || '0.00'}h</div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <div className="text-gray-500">Start Time</div>
+                                        <div className="text-gray-700 p-2">{formatTime(viewItem.start_time)}</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-gray-500">End Time</div>
+                                        <div className="font-medium text-gray-700 p-2">{formatTime(viewItem.end_time)}</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-gray-500">Break Duration</div>
+                                        <div className="font-medium text-gray-700 p-2">{formatMinute(viewItem.break_duration)} min</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-gray-500">Total Working Hour</div>
+                                        <div className="font-medium text-gray-700 p-2">{hoursToHHMM(viewItem.working_hour)}</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-gray-500">Total Office Hour</div>
+                                        <div className="font-medium text-gray-700 p-2">{hoursToHHMM(viewItem.total_hour)}</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
+
         </AppLayout>
     );
 };

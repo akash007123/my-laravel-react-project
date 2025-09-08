@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Head } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
-import {formatDate} from '../utils'
+import {formatTime, hoursToHHMM, formatMinute} from '../utils'
 
 interface Props {
     report: Report;
@@ -13,16 +13,14 @@ export interface Report {
     report: string;
     start_time: string;
     end_time: string;
-    working_hour: number;
-    total_hour: number;
-    break_duration: number;
+    working_hour: string;
+    total_hour: string;
+    break_duration: string;
     total_working_hour: number;
     total_office_hour: number;
     created_at?: string;
     updated_at?: string;
 }
-
-const toMinutes = (hours?: number) => Math.round(Number(hours ?? 0) * 60);
 
 const ReportsShow: React.FC<Props> = ({ report, user }) => {
     console.log('Received report:', report); 
@@ -52,40 +50,28 @@ const ReportsShow: React.FC<Props> = ({ report, user }) => {
                         </div>
                         <div>
                             <label className="block text-gray-700 font-bold mb-2">Start Time</label>
-                            <p className="text-gray-900">{formatDate(report.start_time)}</p>
+                            <p className="text-gray-900">{formatTime(report.start_time)}</p>
                         </div>
                         <div>
                             <label className="block text-gray-700 font-bold mb-2">End Time</label>
-                            <p className="text-gray-900">{formatDate(report.end_time)}</p>
+                            <p className="text-gray-900">{formatTime(report.end_time)}</p>
                         </div>
                         <div>
                             <label className="block text-gray-700 font-bold mb-2">Working Hours</label>
                             <p className="text-gray-900">
-                                {report.working_hour.toFixed(2)}h ({toMinutes(report.working_hour)}m)
+                                {hoursToHHMM(report.working_hour)}
                             </p>
                         </div>
                         <div>
                             <label className="block text-gray-700 font-bold mb-2">Total Hours</label>
                             <p className="text-gray-900">
-                                {report.total_hour.toFixed(2)}h ({toMinutes(report.total_hour)}m)
+                                {hoursToHHMM(report.total_hour)}
                             </p>
                         </div>
                         <div>
                             <label className="block text-gray-700 font-bold mb-2">Break Duration</label>
                             <p className="text-gray-900">
-                                {report.break_duration.toFixed(2)}h ({toMinutes(report.break_duration)}m)
-                            </p>
-                        </div>
-                        <div>
-                            <label className="block text-gray-700 font-bold mb-2">Total Working Hour</label>
-                            <p className="text-gray-900">
-                                {report.total_working_hour?.toFixed(2) || '0.00'}h ({toMinutes(report.total_working_hour)}m)
-                            </p>
-                        </div>
-                        <div>
-                            <label className="block text-gray-700 font-bold mb-2">Total Office Hour</label>
-                            <p className="text-gray-900">
-                                {report.total_office_hour?.toFixed(2) || '0.00'}h ({toMinutes(report.total_office_hour)}m)
+                                {formatMinute(report.break_duration)} min
                             </p>
                         </div>
                     </div>

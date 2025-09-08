@@ -11,8 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('reports', function (Blueprint $table) {
-            //
+        Schema::create('reports', function (Blueprint $table) {
+            $table->id();
+            $table->longText('report')->change();
+            $table->time('start_time');
+            $table->time('end_time');
+            $table->time('working_hour');
+            $table->time('total_hour');
+            $table->time('break_duration');
+            $table->timestamps();
         });
     }
 
@@ -22,7 +29,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('reports', function (Blueprint $table) {
-            //
+            $table->string('report')->change();
         });
     }
 };

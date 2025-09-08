@@ -19,10 +19,6 @@ class Report extends Model
     ];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
-        'working_hour' => 'float',
-        'total_hour' => 'float',
-        'break_duration' => 'float',
+        // add casts
     ];
 } 
