@@ -209,7 +209,10 @@ export default function ApplicantsIndex() {
                                                 </div>
                                                 <div className="ml-4">
                                                     <div className="text-sm font-medium text-gray-900">{a.name}</div>
-                                                    <div className="text-sm text-gray-500">{a.experience || 'No experience'}</div>
+                                                    <div className="text-sm text-gray-500">
+                                                        {a.experience ? `${a.experience} years` : 'No experience'}
+                                                    </div>
+
                                                 </div>
                                             </div>
                                         </td>
@@ -227,21 +230,21 @@ export default function ApplicantsIndex() {
                                                     className="text-blue-600 hover:text-blue-900 p-1.5 rounded-md hover:bg-blue-50 transition-colors duration-150"
                                                     title="View details"
                                                 >
-                                                    <Eye className='w-4 h-4'/>
+                                                    <Eye className='w-4 h-4' />
                                                 </button>
                                                 <button
                                                     onClick={() => router.visit(route('applicants.edit', a.id))}
                                                     className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
                                                     title="Edit"
                                                 >
-                                                    <Pencil className='w-4 h-4'/>
+                                                    <Pencil className='w-4 h-4' />
                                                 </button>
                                                 <button
                                                     onClick={() => setDeleteItem(a)}
                                                     className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
                                                     title="Delete"
                                                 >
-                                                    <Trash2 className='w-4 h-4'/>
+                                                    <Trash2 className='w-4 h-4' />
                                                 </button>
                                             </div>
                                         </td>
@@ -323,7 +326,7 @@ export default function ApplicantsIndex() {
                     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 animate-fade-in">
                         <div className="bg-white rounded-xl w-full max-w-4xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
                             <div className=" justify-end px-6 py-4 border-b">
-                                <h3 className="text-xl font-semibold text-gray-900">Applicant Details</h3>
+                                {/* <h3 className="text-xl font-semibold text-gray-900">Applicant Details</h3> */}
                                 <button
                                     onClick={() => { setViewOpen(false); setViewItem(null); }}
                                     className="cursor-pointer text-gray-500 p-1 rounded-full hover:bg-gray-100"

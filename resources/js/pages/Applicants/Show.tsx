@@ -18,7 +18,7 @@ export default function ApplicantsShow() {
             <Head title={`Applicant - ${applicant.name}`} />
             <div className="container mx-auto px-4 py-8">
                 <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-2xl font-bold">Applicant Details</h1>
+                    {/* <h1 className="text-2xl font-bold">Applicant Details</h1> */}
                     <div className="flex gap-2">
                         <button onClick={()=>router.visit(route('applicants.edit', applicant.id))} className="cursor-pointer px-3 py-2 bg-blue-600 text-white rounded">Edit</button>
                         <button onClick={()=>router.visit(route('applicants.index'))} className="px-3 py-2 border rounded">Back</button>

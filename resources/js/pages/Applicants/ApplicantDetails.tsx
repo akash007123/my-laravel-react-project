@@ -47,6 +47,31 @@ export default function ApplicantDetails({
       : `/storage/${applicant.resume}`
     : null;
 
+  const address = [applicant.city, applicant.state, applicant.country]
+    .filter((v) => !!v && String(v).trim() !== "")
+    .join(", ");
+
+  const contactItems = [
+    applicant.mobile && String(applicant.mobile).trim() !== "" ? applicant.mobile : null,
+    applicant.email && String(applicant.email).trim() !== "" ? applicant.email : null,
+    address && address.trim() !== "" ? address : null,
+  ].filter(Boolean) as string[];
+
+  const hasEducation = !!(
+    (applicant.graduate_year && String(applicant.graduate_year).trim() !== "") ||
+    (applicant.branch && String(applicant.branch).trim() !== "")
+  );
+
+  const hasExperience = !!(applicant.experience && String(applicant.experience).trim() !== "");
+
+  const extraInfoItems: { label: string; value: string }[] = [];
+  if (applicant.joining_timeframe && String(applicant.joining_timeframe).trim() !== "") {
+    extraInfoItems.push({ label: "Joining Timeframe", value: String(applicant.joining_timeframe) });
+  }
+  if (typeof applicant.bond_agreement === "boolean") {
+    extraInfoItems.push({ label: "Bond Agreement", value: applicant.bond_agreement ? "Yes" : "No" });
+  }
+
   return (
     <Wrapper>
       <div className="grid grid-cols-1 md:grid-cols-3 min-h-screen">
@@ -71,94 +96,82 @@ export default function ApplicantDetails({
           </div>
 
           {/* Contact */}
-          <div className="mb-6">
-            <h3 className="uppercase text-sm font-semibold border-b border-blue-700 pb-1 mb-3">
-              Contact
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li>{applicant.mobile}</li>
-              <li>{applicant.email}</li>
-              <li>
-                {[applicant.city, applicant.state, applicant.country]
-                  .filter(Boolean)
-                  .join(", ") || "-"}
-              </li>
-            </ul>
-          </div>
+          {contactItems.length > 0 && (
+            <div className="mb-6">
+              <h3 className="uppercase text-sm font-semibold border-b border-blue-700 pb-1 mb-3">
+                Contact
+              </h3>
+              <ul className="space-y-2 text-sm">
+                {contactItems.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Education */}
-          <div className="mb-6">
-            <h3 className="uppercase text-sm font-semibold border-b border-blue-700 pb-1 mb-3">
-              Education
-            </h3>
-            <p className="text-sm">
-              {applicant.graduate_year || "-"} <br />
-              {applicant.branch || "Field of Study"}
-            </p>
-          </div>
+          {hasEducation && (
+            <div className="mb-6">
+              <h3 className="uppercase text-sm font-semibold border-b border-blue-700 pb-1 mb-3">
+                Education
+              </h3>
+              <p className="text-sm">
+                {applicant.graduate_year}
+                {applicant.graduate_year && applicant.branch ? <br /> : null}
+                {applicant.branch}
+              </p>
+            </div>
+          )}
 
           {/* Skills */}
-          <div className="mb-6">
-            <h3 className="uppercase text-sm font-semibold border-b border-blue-700 pb-1 mb-3">
-              Skills
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.length
-                ? skills.map((s) => (
-                    <span
-                      key={s}
-                      className="bg-blue-700 px-2 py-1 rounded text-xs"
-                    >
-                      {s}
-                    </span>
-                  ))
-                : "-"}
+          {skills.length > 0 && (
+            <div className="mb-6">
+              <h3 className="uppercase text-sm font-semibold border-b border-blue-700 pb-1 mb-3">
+                Skills
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {skills.map((s) => (
+                  <span
+                    key={s}
+                    className="bg-blue-700 px-2 py-1 rounded text-xs"
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </aside>
 
         {/* MAIN CONTENT */}
         <section className="p-8 md:col-span-2">
-          {/* Profile Summary */}
-          {/* <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-800 uppercase">
-              Profile
-            </h2>
-            <p className="mt-2 text-gray-600 text-sm leading-relaxed">
-              Experienced candidate seeking opportunities. This section can hold
-              a brief professional summary if provided.
-            </p>
-          </div> */}
-
           {/* Work Experience */}
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-800 uppercase">
-              Work Experience
-            </h2>
-            <div className="mt-2 text-sm text-gray-600">
-              {applicant.experience || "No experience details provided."}
+          {hasExperience && (
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-gray-800 uppercase">
+                Work Experience
+              </h2>
+              <div className="mt-2 text-sm text-gray-600">
+                {applicant.experience} Years
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Extra Info */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 uppercase">
-                Joining Timeframe
-              </h3>
-              <p className="mt-2 text-sm text-gray-600">
-                {applicant.joining_timeframe || "-"}
-              </p>
+          {extraInfoItems.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {extraInfoItems.map((it) => (
+                <div key={it.label}>
+                  <h3 className="text-sm font-semibold text-gray-700 uppercase">
+                    {it.label}
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-600">
+                    {it.value}
+                  </p>
+                </div>
+              ))}
             </div>
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 uppercase">
-                Bond Agreement
-              </h3>
-              <p className="mt-2 text-sm text-gray-600">
-                {applicant.bond_agreement ? "Yes" : "No"}
-              </p>
-            </div>
-          </div>
+          )}
 
           {/* Resume Link */}
           {resumeHref && (

@@ -120,7 +120,8 @@ const ReportsIndex: React.FC<Props> = ({ reports, user }) => {
 
             {viewItem && (
                 <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-lg w-full max-w-2xl relative max-h-[90vh] overflow-hidden flex flex-col">
+
                         <button
                             onClick={() => setViewItem(null)}
                             className="cursor-pointer absolute top-3 right-3 text-gray-500 hover:text-gray-700"
@@ -128,46 +129,72 @@ const ReportsIndex: React.FC<Props> = ({ reports, user }) => {
                         >
                             ✖️
                         </button>
-                        <h2 className="text-xl text-center font-bold mb-4 bg-[linear-gradient(to_right,_#be123c,_#c2410c,_#1e40af,_#65a30d)] bg-clip-text text-transparent ">
-                            Report Details
-                        </h2>
 
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                            {/* Left Side */}
-                            <div>
-                                <div className="text-gray-500">Report</div>
-                                <div className="font-medium text-gray-700 border rounded-lg p-2">{viewItem.report}</div>
-                            </div>
+                        <div className="p-6 overflow-y-auto flex-1">
+                            <h2 className="text-xl text-center font-bold mb-4 text-gray-800">
+                                Report Details
+                            </h2>
 
-                            {/* Right Side */}
-                            <div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <div className="text-gray-500">Start Time</div>
-                                        <div className="text-gray-700 p-2">{formatTime(viewItem.start_time)}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-gray-500">End Time</div>
-                                        <div className="font-medium text-gray-700 p-2">{formatTime(viewItem.end_time)}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-gray-500">Break Duration</div>
-                                        <div className="font-medium text-gray-700 p-2">{formatMinute(viewItem.break_duration)} min</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-gray-500">Total Working Hour</div>
-                                        <div className="font-medium text-gray-700 p-2">{hoursToHHMM(viewItem.working_hour)}</div>
-                                    </div>
-                                    <div>
-                                        <div className="text-gray-500">Total Office Hour</div>
-                                        <div className="font-medium text-gray-700 p-2">{hoursToHHMM(viewItem.total_hour)}</div>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                                <div>
+                                    <div className="text-gray-500">Report</div>
+                                    <div className="font-medium text-gray-700 border rounded-lg p-2">
+                                        {viewItem.report}
                                     </div>
                                 </div>
+
+                                <div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <div className="text-gray-500">Start Time</div>
+                                            <div className="text-gray-700 p-2">
+                                                {formatTime(viewItem.start_time)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-gray-500">End Time</div>
+                                            <div className="font-medium text-gray-700 p-2">
+                                                {formatTime(viewItem.end_time)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-gray-500">Break Duration</div>
+                                            <div className="font-medium text-gray-700 p-2">
+                                                {formatMinute(viewItem.break_duration)} min
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-gray-500">Total Working Hour</div>
+                                            <div className="font-medium text-gray-700 p-2">
+                                                {hoursToHHMM(viewItem.working_hour)}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div className="text-gray-500">Total Office Hour</div>
+                                            <div className="font-medium text-gray-700 p-2">
+                                                {hoursToHHMM(viewItem.total_hour)}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="p-4 border-t bg-white">
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => setViewItem(null)}
+                                    className="cursor-pointer px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded"
+                                    aria-label="Close"
+                                >
+                                    Close
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
+
 
         </AppLayout>
     );
