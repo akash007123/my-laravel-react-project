@@ -1,7 +1,16 @@
 import AppLayout from '@/layouts/app-layout';
-import { Head, useForm, usePage, Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { Head, useForm, usePage, Link, router } from '@inertiajs/react';
+import { useState, useEffect } from 'react';
 import WorldMap from '../../components/WorldMap';
+import Form from '../Testimonials/Form';
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination, Autoplay } from "swiper/modules";
+import { motion } from "framer-motion";
+import "swiper/css";
+import "swiper/css/pagination";
+import { Trash2 } from 'lucide-react'
+
 type AuthUser = { name: string; email: string };
 
 interface LayoutItem {
@@ -32,10 +41,13 @@ interface FaqItem {
 }
 
 interface TestimonialItem {
+    id: number;
     name: string;
-    role: string;
+    designation: string;
+    company: string;
     content: string;
-    avatar: string;
+    avatar: string | null;
+    rating: number;
 }
 
 interface LayoutIndexProps {
@@ -67,8 +79,17 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [activeHoverCard, setActiveHoverCard] = useState<number | null>(null);
+    const [showToast, setShowToast] = useState(false);
 
     const { flash }: any = usePage().props;
+
+    useEffect(() => {
+        if (flash?.success) {
+            setShowToast(true);
+            const t = setTimeout(() => setShowToast(false), 3000);
+            return () => clearTimeout(t);
+        }
+    }, [flash?.success]);
 
     const leadForm = useForm({
         full_name: '',
@@ -76,6 +97,11 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
         company_name: '',
         country: '',
     });
+
+    function handleDelete(id: number) {
+        if (!confirm("Delete this testimonial?")) return;
+        router.delete(`/testimonials/${id}`);
+    }
 
     function submitLead(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -101,10 +127,18 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
     return (
         <div>
             <Head title="Layout" />
-            {flash?.success && (
-                <div className="container mx-auto px-4 pt-4">
-                    <div className="bg-green-50 border border-green-200 text-green-800 rounded-md p-3">
-                        {flash.success}
+            {showToast && (
+                <div className="fixed top-4 right-4 z-50">
+                    <div className="bg-green-600 text-white rounded-md shadow-lg px-4 py-3 flex items-start gap-3">
+                        <svg className="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+                        </svg>
+                        <div className="pr-2">{flash?.success}</div>
+                        <button onClick={() => setShowToast(false)} className="ml-auto text-white/80 hover:text-white">
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
                 </div>
             )}
@@ -308,32 +342,141 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                         </div>
                     </div>
                 </section>
-
-                <section className="py-16 bg-gray-50">
+                {/* Testimonials */}
+                <section className="py-20 bg-gradient-to-br from-indigo-50 via-white to-indigo-100 relative">
                     <div className="container mx-auto px-4">
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold text-gray-900 mb-4">What Our Clients Say</h2>
-                            <p className="text-xl text-gray-600">Hear from HR professionals who have transformed their workflows with our platform.</p>
+                        {/* Header */}
+                        <div className="text-center mb-16">
+                            <motion.h2
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.6 }}
+                                viewport={{ once: true }}
+                                className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-6"
+                            >
+                                What Our Clients Say
+                            </motion.h2>
+                            <motion.p
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.2, duration: 0.6 }}
+                                viewport={{ once: true }}
+                                className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto"
+                            >
+                                Hear from HR professionals who have transformed their workflows with
+                                our platform.
+                            </motion.p>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Carousel */}
+                        <Swiper
+                            modules={[Pagination, Autoplay]}
+                            spaceBetween={40}
+                            slidesPerView={1}
+                            autoplay={{ delay: 4000, disableOnInteraction: false }}
+                            pagination={{ clickable: true }}
+                            breakpoints={{
+                                768: { slidesPerView: 2 },
+                                1024: { slidesPerView: 3 },
+                            }}
+                            className="pb-12"
+                        >
                             {testimonials.map((testimonial, index) => (
-                                <blockquote key={index} className="bg-white p-8 rounded-lg shadow-md">
-                                    <div className="flex items-center mb-4">
-                                        <img
-                                            src={testimonial.avatar}
-                                            alt={testimonial.name}
-                                            className="w-12 h-12 rounded-full mr-4"
-                                        />
-                                        <div>
-                                            <div className="font-semibold">{testimonial.name}</div>
-                                            <div className="text-gray-600 text-sm">{testimonial.role}</div>
+                                <SwiperSlide key={index}>
+                                    <motion.blockquote
+                                        initial={{ opacity: 0, y: 40 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1, duration: 0.6 }}
+                                        viewport={{ once: true }}
+                                        className="relative bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl p-8 rounded-2xl h-full flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
+                                    >
+                                        {/* Decorative Quote Mark */}
+                                        <span className="absolute top-4 left-4 text-6xl text-indigo-200 opacity-30 font-serif">
+                                            “
+                                        </span>
+
+                                        <div className="relative z-10">
+                                            {/* <button onClick={() => handleDelete(testimonial.id)} className="text-red-600 underline">
+                                                <Trash2 className='w-2 h-2'/>
+                                            </button> */}
+                                            {/* Avatar + Name */}
+                                            <div className="flex items-center mb-5">
+                                                {testimonial.avatar ? (
+                                                    <img
+                                                        src={testimonial.avatar}
+                                                        alt={testimonial.name}
+                                                        className="w-14 h-14 rounded-full mr-4 object-cover ring-4 ring-indigo-300"
+                                                    />
+                                                ) : (
+                                                    <div
+                                                        className={`w-14 h-14 rounded-full mr-4 flex items-center justify-center font-bold text-lg ring-4
+                                                      ${testimonial.rating === 1
+                                                                ? "bg-gray-800 text-gray-100 ring-gray-400"
+                                                                : testimonial.rating === 2
+                                                                    ? "bg-orange-800 text-orange-100 ring-orange-400"
+                                                                    : testimonial.rating === 3
+                                                                        ? "bg-yellow-800 text-yellow-100 ring-yellow-400"
+                                                                        : testimonial.rating === 4
+                                                                            ? "bg-green-800 text-green-100 ring-green-400"
+                                                                            : testimonial.rating === 5
+                                                                                ? "bg-blue-800 text-blue-100 ring-blue-400"
+                                                                                : "bg-indigo-200 text-white ring-indigo-300"
+                                                            }`}
+                                                    >
+                                                        {testimonial.name
+                                                            ?.split(" ")
+                                                            .map((w) => w.charAt(0))
+                                                            .join("")
+                                                            .toUpperCase()}
+                                                    </div>
+
+                                                )}
+                                                <div>
+                                                    <div className="font-bold text-lg text-gray-900">
+                                                        {testimonial.name}
+                                                    </div>
+                                                    <div className="text-indigo-600 text-[12px] font-medium">
+                                                        {testimonial.company}
+                                                        <br />
+                                                        {testimonial.designation}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Rating */}
+                                            <div className="flex items-center mb-4">
+                                                {Array.from({ length: 5 }).map((_, i) => (
+                                                    <svg
+                                                        key={i}
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        viewBox="0 0 20 20"
+                                                        fill={
+                                                            i < (testimonial as any).rating
+                                                                ? "#FACC15"
+                                                                : "#E5E7EB"
+                                                        }
+                                                        className="w-5 h-5 drop-shadow-sm"
+                                                    >
+                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.802 2.036a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.802-2.036a1 1 0 00-1.176 0l-2.802 2.036c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81H7.03a1 1 0 00.95-.69l1.07-3.292z" />
+                                                    </svg>
+                                                ))}
+                                            </div>
+
+                                            {/* Content */}
+                                            <p className="text-gray-700 italic leading-relaxed relative z-10">
+                                                "{testimonial.content}"
+                                            </p>
                                         </div>
-                                    </div>
-                                    <p className="text-gray-700 italic">"{testimonial.content}"</p>
-                                </blockquote>
+                                    </motion.blockquote>
+                                </SwiperSlide>
                             ))}
-                        </div>
+                        </Swiper>
+                    </div>
+                </section>
+
+                <section>
+                    <div className="grid grid-cols-2 gap-4">
+                        <Form />
                     </div>
                 </section>
 

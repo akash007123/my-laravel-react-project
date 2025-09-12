@@ -16,6 +16,7 @@ use App\Models\Department;
 use App\Models\Lead;
 use App\Models\Applicant;
 use App\Models\Report;
+use App\Models\Testimonial;
 
 class LayoutController extends Controller
 {
@@ -50,10 +51,21 @@ class LayoutController extends Controller
             [ 'question' => 'What kind of support do you provide?', 'answer' => 'We offer 24/7 customer support, onboarding assistance, and comprehensive documentation.' ],
         ];
 
-        $testimonials = [
-            [ 'name' => 'Dikshant Sharma', 'role' => 'HR Director, TechCorp', 'content' => 'This HRMS has transformed how we manage our workforce. The automation features saved us 20 hours per week.', 'avatar' => 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwUxAH2sitH1SVQ2k-7tLmVQ1CbR1ddY7r1g&s' ],
-            [ 'name' => 'Anveshi Jain', 'role' => 'Operations Manager, StartUp Inc', 'content' => 'Implementation was seamless, and our team adapted quickly. The reporting features are exceptional.', 'avatar' => 'https://img.freepik.com/free-photo/beautiful-girl-stands-park_8353-5084.jpg' ],
-        ];
+        $testimonials = Testimonial::orderBy('created_at', 'desc')
+            ->limit(6)
+            ->get()
+            ->map(function ($t) {
+                return [
+                    'id' => (int) $t->id,
+                    'name' => $t->fullname,
+                    // 'role' => trim(($t->designation ?? '') . (isset($t->company) && $t->company !== '' ? (', ' . $t->company) : '')),
+                    'designation' => $t->designation,
+                    'company' => $t-> company,
+                    'content' => $t->message,
+                    'avatar' => $t->profile ? asset('storage/' . $t->profile) : null,
+                    'rating' => (int) ($t->rating ?? 0),
+                ];
+            });
 
         return Inertia::render('Layout/Index', [
             'user' => auth()->user(),
@@ -76,7 +88,7 @@ class LayoutController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request, layout $layout)
     {
         //
     }

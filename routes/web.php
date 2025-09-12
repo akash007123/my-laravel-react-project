@@ -16,6 +16,7 @@ use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\MapController;
+use App\Http\Controllers\TestimonialsController;
 
 // use Models
 use App\Models\Event;
@@ -26,6 +27,7 @@ use App\Models\Gallery;
 use App\Models\Department;
 use App\Models\Lead;
 use App\Models\Applicant;
+use App\Models\Testimonial;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -122,6 +124,7 @@ Route::middleware(['auth'])->group(function () {
     Route::resource("layout",LayoutController::class);
     Route::resource("leads",LeadController::class);
     Route::resource("applicants",ApplicantController::class);
+    Route::resource("testimonials",TestimonialsController::class);
     Route::get('/links', [LinkController::class, 'index'])->name('links.index');
     Route::post('/links', [LinkController::class, 'store'])->name('links.store');
     Route::post('/links/{link}', [LinkController::class, 'update'])->name('links.update');
