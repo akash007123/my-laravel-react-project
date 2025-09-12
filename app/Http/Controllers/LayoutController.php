@@ -7,6 +7,16 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
+use App\Models\Event;
+use App\Models\User;
+use App\Models\Project;
+use App\Models\Holiday;
+use App\Models\Gallery;
+use App\Models\Department;
+use App\Models\Lead;
+use App\Models\Applicant;
+use App\Models\Report;
+
 class LayoutController extends Controller
 {
     /**
@@ -17,14 +27,14 @@ class LayoutController extends Controller
         $layouts = layout::all();
 
         $stats = [
-            'totalEvents' => \App\Models\Event::count(),
-            'totalUsers' => \App\Models\User::count(),
-            'totalProjects' => \App\Models\Project::count(),
-            'totalHolidays' => \App\Models\Holiday::count(),
-            'totalGallery' => \App\Models\Gallery::count(),
-            'totalDepartments' => \App\Models\Department::count(),
-            'totalReports' => \App\Models\Report::count(),
-            'totalLeads' => \App\Models\Lead::count(),
+            'totalEvents' => Event::count(),
+            'totalUsers' => User::count(),
+            'totalProjects' => Project::count(),
+            'totalHolidays' => Holiday::count(),
+            'totalGallery' => Gallery::count(),
+            'totalDepartments' => Department::count(),
+            'totalReports' => Report::count(),
+            'totalLeads' => Lead::count(),
         ];
 
         $features = [

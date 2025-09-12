@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { Head, useForm, usePage, Link } from '@inertiajs/react';
 import { useState } from 'react';
-
+import WorldMap from '../../components/WorldMap';
 type AuthUser = { name: string; email: string };
 
 interface LayoutItem {
@@ -263,14 +263,14 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                     <nav className="text-sm">
                         <ol className="flex space-x-2">
                             <li className="text-gray-500">
-                            <Link href={route('home')} >
-                                Home
+                                <Link href={route('home')} >
+                                    Home
                                 </Link>
                             </li>
                             <li className="text-gray-500">/</li>
                             <li className="text-gray-500">
                                 <Link href={route('dashboard')} >
-                                HR Solutions
+                                    HR Solutions
                                 </Link>
                             </li>
                             <li className="text-gray-500">/</li>
@@ -337,6 +337,16 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                     </div>
                 </section>
 
+                {/* World Map */}
+                {/* <WorldMap /> */}
+
+                <section>
+                    <div className="grid grid-cold-2 md:grid-cold-2 gap-4">
+                        <div>
+                            <WorldMap />
+                        </div>
+                    </div>
+                </section>
                 <section id="faqs" className="py-16 bg-white">
                     <div className="container mx-auto px-4">
                         <div className="text-center mb-12">

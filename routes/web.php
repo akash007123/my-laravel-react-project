@@ -4,6 +4,28 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Carbon;
+// Use Controllers
+use App\Http\Controllers\LinkController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\EventController;
+use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\GalleryController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\LayoutController;
+use App\Http\Controllers\LeadController;
+use App\Http\Controllers\ApplicantController;
+use App\Http\Controllers\MapController;
+
+// use Models
+use App\Models\Event;
+use App\Models\User;
+use App\Models\Project;
+use App\Models\Holiday;
+use App\Models\Gallery;
+use App\Models\Department;
+use App\Models\Lead;
+use App\Models\Applicant;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -14,16 +36,15 @@ Route::get('/project', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
-        $totalEvents = \App\Models\Event::count();
-        $totalUsers = \App\Models\User::count();
-        $totalProjects = \App\Models\Project::count();
-        $totalHolidays = \App\Models\Holiday::count();
-        $totalGallery = \App\Models\Gallery::count();
-        $totalDepartments = \App\Models\Department::count();
-        $totalLeads = \App\Models\Lead::count();
-        $totalApplicants = \App\Models\Applicant::count();
-        
-        $recentProjects = \App\Models\Project::latest()->take(3)->get()->map(function ($p) {
+        $totalEvents = Event::count();
+        $totalUsers = User::count();
+        $totalProjects = Project::count();
+        $totalHolidays = Holiday::count();
+        $totalGallery = Gallery::count();
+        $totalDepartments = Department::count();
+        $totalLeads = Lead::count();
+        $totalApplicants = Applicant::count();
+        $recentProjects = Project::latest()->take(3)->get()->map(function ($p) {
             return [
                 'id' => $p->id,
                 'title' => $p->title,
@@ -92,15 +113,20 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 
     Route::resource("users", UserController::class);
-    Route::resource("projects", \App\Http\Controllers\ProjectController::class);
-    Route::resource("events", \App\Http\Controllers\EventController::class);
-    Route::resource("holidays", \App\Http\Controllers\HolidayController::class);
-    Route::resource("gallery", \App\Http\Controllers\GalleryController::class);
-    Route::resource("department", \App\Http\Controllers\DepartmentController::class);
-    Route::resource("reports", \App\Http\Controllers\ReportController::class);
-    Route::resource("layout", \App\Http\Controllers\LayoutController::class);
-    Route::resource("leads", \App\Http\Controllers\LeadController::class);
-    Route::resource("applicants", \App\Http\Controllers\ApplicantController::class);
+    Route::resource("projects", ProjectController::class);
+    Route::resource("events", EventController::class);
+    Route::resource("holidays",HolidayController::class);
+    Route::resource("gallery",GalleryController::class);
+    Route::resource("department",DepartmentController::class);
+    Route::resource("reports",ReportController::class);
+    Route::resource("layout",LayoutController::class);
+    Route::resource("leads",LeadController::class);
+    Route::resource("applicants",ApplicantController::class);
+    Route::get('/links', [LinkController::class, 'index'])->name('links.index');
+    Route::post('/links', [LinkController::class, 'store'])->name('links.store');
+    Route::post('/links/{link}', [LinkController::class, 'update'])->name('links.update');
+    Route::delete('/links/{link}', [LinkController::class, 'destroy'])->name('links.destroy');
+    Route::get('/map', [MapController::class, 'show']);
 });
 
 

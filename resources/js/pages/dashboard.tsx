@@ -204,15 +204,15 @@ export default function Dashboard({
                 </div>
 
                 {/* Main Content Area */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
                     {/* Left Column - 2/3 width */}
                     <div className="lg:col-span-2 space-y-6">
                         {/* Recent Projects */}
                         {recentProjects.length > 0 && (
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                            <div className="bg-gray-800 rounded-xl shadow-2xl shadow-gray-800 border border-gray-200 p-5">
                                 <div className="flex items-center justify-between mb-5">
-                                    <h2 className="text-lg font-semibold text-gray-900">Recent Projects</h2>
-                                    <Link href="/projects" className="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                                    <h2 className="text-lg font-semibold text-gray-100">Recent Projects</h2>
+                                    <Link href="/projects" className="text-sm text-gray-100 hover:text-blue-800 flex items-center">
                                         View all <ChevronRight className="w-4 h-4" />
                                     </Link>
                                 </div>
@@ -237,10 +237,10 @@ export default function Dashboard({
                                                 )}
                                             </div>
                                             <div className="flex-1 min-w-0">
-                                                <h3 className="font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                                                <h3 className="font-medium text-gray-100 truncate group-hover:text-blue-600 transition-colors">
                                                     {project.title}
                                                 </h3>
-                                                <p className="text-sm text-gray-500 truncate">Manager: {project.project_manager}</p>
+                                                <p className="text-sm text-gray-100 group-hover:text-gray-800 truncate">Manager: {project.project_manager}</p>
                                             </div>
                                             <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-colors" />
                                         </Link>
@@ -251,7 +251,7 @@ export default function Dashboard({
 
                         {/* Recent Events */}
                         {recentEvents.length > 0 && (
-                            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                            <div className="bg-white rounded-xl shadow-2xl shadow-gray-800 border border-gray-200 p-5">
                                 <div className="flex items-center justify-between mb-5">
                                     <h2 className="text-lg font-semibold text-gray-900">Upcoming Events</h2>
                                     <Link href="/events" className="text-sm text-blue-600 hover:text-blue-800 flex items-center">

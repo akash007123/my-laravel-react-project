@@ -4,7 +4,7 @@ import { NavUser } from '@/components/nav-user';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid, Users, BriefcaseBusiness, CalendarCheck, CalendarDays, Images, Slack, UserPen, LayoutTemplate, BadgeIndianRupee, FileUser } from 'lucide-react';
+import { BookOpen, Folder, LayoutGrid, Users, BriefcaseBusiness, CalendarCheck, CalendarDays, Images, Slack, UserPen, LayoutTemplate, BadgeIndianRupee, FileUser, Link2 } from 'lucide-react';
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
@@ -62,21 +62,26 @@ const mainNavItems: NavItem[] = [
         title: 'Applicant',
         url: '/applicants',
         icon: FileUser
+    },
+    {
+        title: 'Links',
+        url: '/links',
+        icon: Link2
     }
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        url: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        url: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
-];
+// const footerNavItems: NavItem[] = [
+//     {
+//         title: 'Repository',
+//         url: 'https://github.com/laravel/react-starter-kit',
+//         icon: Folder,
+//     },
+//     {
+//         title: 'Documentation',
+//         url: 'https://laravel.com/docs/starter-kits',
+//         icon: BookOpen,
+//     },
+// ];
 
 export function AppSidebar({ user }: { user?: { name: string; email: string } }) {
     return (
