@@ -58,12 +58,13 @@ class LayoutController extends Controller
                 return [
                     'id' => (int) $t->id,
                     'name' => $t->fullname,
-                    // 'role' => trim(($t->designation ?? '') . (isset($t->company) && $t->company !== '' ? (', ' . $t->company) : '')),
                     'designation' => $t->designation,
                     'company' => $t-> company,
                     'content' => $t->message,
                     'avatar' => $t->profile ? asset('storage/' . $t->profile) : null,
                     'rating' => (int) ($t->rating ?? 0),
+                    'email' => $t->email,
+                    'is_active' => $t->is_active,
                 ];
             });
 

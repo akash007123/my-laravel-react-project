@@ -10,6 +10,7 @@ class Testimonial extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'profile',
         'fullname',
         'email',
@@ -20,4 +21,12 @@ class Testimonial extends Model
         'rating',
         'is_active',
     ];
+
+    /**
+     * Get the user that owns the testimonial.
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 } 

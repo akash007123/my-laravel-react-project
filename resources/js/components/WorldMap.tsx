@@ -15,7 +15,7 @@ const IndiaMap: React.FC = () => {
   const position: LatLngTuple = [23.149292744011, 75.79426793536513];
 
   return (
-    <MapContainer center={position} zoom={5} style={{ height: '100%', width: '100%' }}>
+    <MapContainer center={position} zoom={5} className='z-0' style={{ height: '100%', width: '100%' }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <Marker position={position}>
         <Popup>You're viewing the center of India!</Popup>

@@ -86,9 +86,18 @@ Route::middleware(['auth'])->group(function () {
                 'name' => $a->name,
                 'email' => $a->email,
                 'mobile' => $a->mobile,
+                'city' => $a->city,
             ];
         });
-       
+       $recentLeads= \App\Models\Lead::latest()->take(3)->get()->map(function ($l) {
+            return [
+                'id' => $l->id,
+                'full_name' => $l->full_name,
+                'email' => $l->email,
+                'company_name' => $l->company_name,
+                'country' => $l->country,
+            ];
+        });
        
         $yesterday = Carbon::yesterday();
         $totalReports = \App\Models\Report::whereDate('created_at', $yesterday)->count(); //use carbon for display yesterday reports only
@@ -104,13 +113,14 @@ Route::middleware(['auth'])->group(function () {
             'totalReports' => $totalReports,
             'totalLeads' => $totalLeads,
             'totalApplicants' => $totalApplicants,
-
             // Show Recents
             'recentProjects' => $recentProjects,
             'recentEvents' => $recentEvents,
             'recentHolidays' => $recentHolidays,
             'recentDepartments' => $recentDepartments,
             'recentApplicants' => $recentApplicants,
+            'recentLeads' => $recentLeads,
+
         ]);
     })->name('dashboard');
 

@@ -1,8 +1,7 @@
 import { Country } from 'country-state-city';
-console.log(Country.getAllCountries())
+import { DateTime } from 'luxon';
 
 
-//For Coutry with flag
 export function renderFlag(countryName?: string | null) {
   if (!countryName) return null;
 
@@ -19,17 +18,13 @@ export function renderFlag(countryName?: string | null) {
         className="rounded-sm"
       />
       <span>+{match.phonecode}</span>
-      {/* <span>+{match.currency}</span>
-      <span>+{match.isoCode}</span> */}
     </div>
   );
 }
 
 
-// Helpers to safely parse date/time strings without unintended timezone conversions
 function extractYMD(s: string): { y: number; m: number; d: number } | null {
   if (!s) return null;
-  // Match YYYY-MM-DD at start
   const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!m) return null;
   return { y: Number(m[1]), m: Number(m[2]), d: Number(m[3]) };
@@ -37,7 +32,6 @@ function extractYMD(s: string): { y: number; m: number; d: number } | null {
 
 function extractHM(s: string): { H: number; M: number } | null {
   if (!s) return null;
-  // Find first HH:MM occurrence
   const m = s.match(/(\d{2}):(\d{2})/);
   if (!m) return null;
   return { H: Number(m[1]), M: Number(m[2]) };
@@ -52,7 +46,6 @@ function formatAMPM(H: number, M: number): string {
 
 export function hoursToHHMM(hours?: number | string) {
   if (typeof hours === 'string') {
-    // Handle TIME strings like HH:MM or HH:MM:SS
     const m = hours.match(/^(\d{1,3}):(\d{2})(?::\d{2})?$/);
     if (m) {
       const H = Number(m[1]);
@@ -72,7 +65,7 @@ export function formatDateTime(dateString: string) {
   const hm = extractHM(dateString);
   if (!ymd || !hm) return '-';
   const d = new Date(ymd.y, ymd.m - 1, ymd.d, hm.H, hm.M);
-  return d.toLocaleString('en-US', {
+  return d.toLocaleString('en-IN', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -88,10 +81,9 @@ export function formatDate(dateString: string) {
   if (!ymd) return '-';
   if (!hm) {
     const d = new Date(ymd.y, ymd.m - 1, ymd.d);
-    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    return d.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
   }
-  // Include time but avoid timezone shift
-  return `${new Date(ymd.y, ymd.m - 1, ymd.d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })} ${formatAMPM(hm.H, hm.M)}`;
+  return `${new Date(ymd.y, ymd.m - 1, ymd.d).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })} ${formatAMPM(hm.H, hm.M)}`;
 }
 
 export function formatTime(dateString: string) {
@@ -104,7 +96,7 @@ export function formatDateOnly(dateString: string) {
   const ymd = extractYMD(dateString);
   if (!ymd) return '-';
   const d = new Date(ymd.y, ymd.m - 1, ymd.d);
-  return d.toLocaleDateString('en-US', {
+  return d.toLocaleDateString('en-IN', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -115,7 +107,7 @@ export function formatDateWithWeekday(dateString: string) {
   const ymd = extractYMD(dateString);
   if (!ymd) return '-';
   const d = new Date(ymd.y, ymd.m - 1, ymd.d);
-  return d.toLocaleDateString('en-US', {
+  return d.toLocaleDateString('en-IN', {
     weekday: 'long',
     year: 'numeric',
     month: 'short',
@@ -127,26 +119,18 @@ export function formatDateTimeDay(dateString: string) {
   const ymd = extractYMD(dateString);
   const hm = extractHM(dateString);
   if (!ymd || !hm) return '-';
-  const d = new Date(ymd.y, ymd.m - 1, ymd.d, hm.H, hm.M);
-  return d.toLocaleString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true,
-  });
+  const isoDateString = `${ymd.y}-${String(ymd.m).padStart(2, '0')}-${String(ymd.d).padStart(2, '0')}T${String(hm.H).padStart(2, '0')}:${String(hm.M).padStart(2, '0')}:00.000Z`;
+  const dt = DateTime.fromISO(isoDateString, { zone: 'UTC' }).setZone('Asia/Kolkata');
+  return dt.toFormat('cccc, dd MMM yyyy, hh:mm a');  
 }
 
-// for minutes only (expects number of minutes or HH:MM string)
+
+
 export function formatMinute(value: string | number) {
   if (typeof value === 'number') return String(Math.max(0, Math.round(value)));
   if (!value) return '-';
-  // If it's already a number-like string
   const num = Number(value);
   if (!Number.isNaN(num)) return String(Math.max(0, Math.round(num)));
-  // If it's a time string, extract minutes part
   const hm = extractHM(value);
   if (!hm) return '-';
   return String(hm.M).padStart(2, '0');

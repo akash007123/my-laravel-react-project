@@ -13,6 +13,7 @@ interface ProjectShowProps {
         end_date?: string | null;
         client_name: string;
         project_manager: string;
+        is_active: number;
         image_url?: string | null;
     };
 }
@@ -90,7 +91,8 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                                             whileHover={{ scale: 1.05, rotate: 2 }}
                                             src={project.image_url}
                                             alt={project.title}
-                                            className="h-48 w-48 rounded-2xl shadow-2xl border-4 border-white/20"
+                                            // className="h-48 w-48 rounded-2xl shadow-2xl border-4 border-white/20"
+                                            className={`h-48 w-48 rounded-2xl shadow-2xl border border-6 ${project.is_active === 1 ? 'border-green-800' : 'border-red-800'}`}
                                         />
                                     ) : (
                                         <motion.div
@@ -116,10 +118,11 @@ export default function ProjectShow({ project }: ProjectShowProps) {
                                         initial={{ y: 30, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ duration: 0.8, delay: 0.8 }}
-                                        className="text-lg text-blue-100 leading-relaxed max-w-2xl"
+                                        className="text-lg leading-relaxed max-w-2x line-clamp-1"
                                     >
                                         {project.description}
                                     </motion.p>
+
                                 </div>
                             </div>
                         </div>

@@ -336,6 +336,10 @@ export default function ProjectsIndex({ projects, allProjects, tab = 'List', use
                                         />
                                         {errors.image && <p className="text-red-500 text-sm mt-1">{errors.image}</p>}
                                     </div>
+                                    
+                                    <div>
+                                        
+                                    </div>
 
                                     <div className="flex gap-4">
                                         <motion.button 

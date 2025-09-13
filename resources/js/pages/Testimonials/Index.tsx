@@ -52,11 +52,11 @@ export default function Index() {
                   className="w-14 h-14 rounded-full object-cover border"
                 />
               )}
-              <div>
-                <h2 className="font-semibold text-lg">{t.fullname}</h2>
-                <p className="text-gray-600">{t.designation} @ {t.company}</p>
-                <p>{t.message}</p>
-                <p className="text-yellow-600">⭐ {t.rating}</p>
+            <div>
+              <h2 className="font-semibold text-lg">{t.fullname}</h2>
+              <p className="text-gray-600">{t.designation} @ {t.company}</p>
+              <p>{t.message}</p>
+              <p className="text-yellow-600">⭐ {t.rating}</p>
               </div>
             </div>
             <div className="space-x-2">

@@ -10,6 +10,7 @@ export default function Create({ user }: { user: { name: string; email: string }
         end_date: '',
         client_name: '',
         project_manager: '',
+        is_active: true,
         image: null as File | null,
     });
 

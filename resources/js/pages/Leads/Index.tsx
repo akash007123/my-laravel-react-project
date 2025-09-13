@@ -3,7 +3,7 @@ import { Head, useForm, usePage, router } from '@inertiajs/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Country }  from 'country-state-city';
 import {renderFlag, formatDateTime} from '../utils'
-import { Eye, Trash2, Pencil } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 
 interface Lead {
     id: number;

@@ -20,6 +20,8 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->string('client_name');
             $table->string('project_manager');
+            $table->boolean('is_active')->default(1);
+            $table->string('image_path')->nullabl();
             $table->timestamps();
         });
     }

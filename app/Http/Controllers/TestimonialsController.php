@@ -6,6 +6,7 @@ use App\Models\Testimonial;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use App\Models\User;
 
 class TestimonialsController extends Controller
 {
@@ -14,7 +15,7 @@ class TestimonialsController extends Controller
      */
     public function index()
     {
-        $testimonials = Testimonial::latest()->get();
+        $testimonials = Testimonial::with('user')->latest()->get();
         return Inertia::render('Testimonials/Index', [
             'testimonials' => $testimonials,
         ]);
@@ -34,6 +35,7 @@ class TestimonialsController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'user_id'     => 'nullable|exists:users,id',
             'fullname'    => 'required|string|max:255',
             'email'       => 'nullable|email',
             'phone'       => 'nullable|string|max:20',
@@ -60,6 +62,7 @@ class TestimonialsController extends Controller
      */
     public function show(Testimonial $testimonial)
     {
+        $testimonial->load('user');
         return Inertia::render('Testimonials/Show', [
             'testimonial' => $testimonial,
         ]);
@@ -70,6 +73,7 @@ class TestimonialsController extends Controller
      */
     public function edit(Testimonial $testimonial)
     {
+        $testimonial->load('user');
         return Inertia::render('Testimonials/Update', [
             'testimonial' => $testimonial,
         ]);
@@ -81,6 +85,7 @@ class TestimonialsController extends Controller
     public function update(Request $request, Testimonial $testimonial)
     {
         $validated = $request->validate([
+            'user_id'     => 'nullable|exists:users,id',
             'fullname'    => 'required|string|max:255',
             'email'       => 'nullable|email',
             'phone'       => 'nullable|string|max:20',
@@ -101,7 +106,7 @@ class TestimonialsController extends Controller
 
         $testimonial->update($validated);
 
-        return redirect()->route('testimonials.index')->with('success', 'Testimonial updated successfully!');
+        return redirect()->route('layout.index')->with('success', 'Testimonial updated successfully!');
     }
 
     /**

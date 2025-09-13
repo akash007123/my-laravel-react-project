@@ -9,9 +9,9 @@ import { Pagination, Autoplay } from "swiper/modules";
 import { motion } from "framer-motion";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Trash2 } from 'lucide-react'
+import { Trash2, Pencil } from 'lucide-react'
 
-type AuthUser = { name: string; email: string };
+type AuthUser = { name: string; email: string; id: number; };
 
 interface LayoutItem {
     id?: number | string;
@@ -41,6 +41,7 @@ interface FaqItem {
 }
 
 interface TestimonialItem {
+    email?: string;
     id: number;
     name: string;
     designation: string;
@@ -48,6 +49,7 @@ interface TestimonialItem {
     content: string;
     avatar: string | null;
     rating: number;
+    is_active?: number;
 }
 
 interface LayoutIndexProps {
@@ -75,11 +77,16 @@ function getIconFor(key?: string) {
 }
 
 export default function LayoutIndex({ user, layout = [], stats, features = [], faqs = [], testimonials = [] }: LayoutIndexProps) {
+    console.log(testimonials, "testimonials")
+
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [activeHoverCard, setActiveHoverCard] = useState<number | null>(null);
     const [showToast, setShowToast] = useState(false);
+    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+    const [isMapOpen, setIsMapOpen] = useState(true);
+    const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
     const { flash }: any = usePage().props;
 
@@ -388,7 +395,7 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                                         whileInView={{ opacity: 1, y: 0 }}
                                         transition={{ delay: index * 0.1, duration: 0.6 }}
                                         viewport={{ once: true }}
-                                        className="relative bg-white/70 backdrop-blur-xl border border-white/40 shadow-xl p-8 rounded-2xl h-full flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
+                                        className="relative bg-white/70 backdrop-blur-xl border  border-gray-400 shadow-xl p-8 mt-6 mb-10 rounded-2xl h-100  flex flex-col justify-between hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
                                     >
                                         {/* Decorative Quote Mark */}
                                         <span className="absolute top-4 left-4 text-6xl text-indigo-200 opacity-30 font-serif">
@@ -396,40 +403,69 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                                         </span>
 
                                         <div className="relative z-10">
-                                            {/* <button onClick={() => handleDelete(testimonial.id)} className="text-red-600 underline">
-                                                <Trash2 className='w-2 h-2'/>
-                                            </button> */}
+                                            <div>
+                                                {/* {user && user.email === testimonial.email && (
+                                                    <div className="flex gap-2 justify-end">
+                                                        <button onClick={() => handleDelete(testimonial.id)} className="text-red-600 underline mt-[-20px]">
+                                                            <Trash2 className='w-4 h-4' />
+                                                        </button>
+                                                        <Link href={`/testimonials/${testimonial.id}/edit`
+                                                        } className="text-green-600 underline mt-[-20px]">
+                                                            <Pencil className='w-4 h-4' />
+                                                        </Link>
+                                                    </div>
+                                                )} */}
+                                            </div>
+                                            <div>
+
+                                                <div className="flex gap-2 justify-start items-center">
+                                                    {/* Status indicator */}
+                                                    <span className={`text-sm font-semibold ${testimonial.is_active === 1 ? 'text-green-600' : 'text-red-600'}`}>
+                                                        {/* {testimonial.is_active === 1 ? 'Active' : 'Inactive'} */}
+                                                    </span>
+                                                </div>
+
+                                            </div>
                                             {/* Avatar + Name */}
                                             <div className="flex items-center mb-5">
                                                 {testimonial.avatar ? (
-                                                    <img
-                                                        src={testimonial.avatar}
-                                                        alt={testimonial.name}
-                                                        className="w-14 h-14 rounded-full mr-4 object-cover ring-4 ring-indigo-300"
-                                                    />
-                                                ) : (
-                                                    <div
-                                                        className={`w-14 h-14 rounded-full mr-4 flex items-center justify-center font-bold text-lg ring-4
-                                                      ${testimonial.rating === 1
-                                                                ? "bg-gray-800 text-gray-100 ring-gray-400"
-                                                                : testimonial.rating === 2
-                                                                    ? "bg-orange-800 text-orange-100 ring-orange-400"
-                                                                    : testimonial.rating === 3
-                                                                        ? "bg-yellow-800 text-yellow-100 ring-yellow-400"
-                                                                        : testimonial.rating === 4
-                                                                            ? "bg-green-800 text-green-100 ring-green-400"
-                                                                            : testimonial.rating === 5
-                                                                                ? "bg-blue-800 text-blue-100 ring-blue-400"
-                                                                                : "bg-indigo-200 text-white ring-indigo-300"
-                                                            }`}
-                                                    >
-                                                        {testimonial.name
-                                                            ?.split(" ")
-                                                            .map((w) => w.charAt(0))
-                                                            .join("")
-                                                            .toUpperCase()}
+                                                    <div className="relative">
+                                                        <img
+                                                            src={testimonial.avatar}
+                                                            alt={testimonial.name}
+                                                            className={`w-14 h-14 rounded-full mr-4 object-cover ring-4 ring-indigo-300`}
+                                                        />
+                                                        <span className="absolute -bottom-1 -right-1 text-xl">
+                                                            {/* {testimonial.is_active === 1 ? '✅' : '❌'} */}
+                                                        </span>
                                                     </div>
-
+                                                ) : (
+                                                    <div className="relative">
+                                                        <div
+                                                            className={`w-14 h-14 rounded-full mr-4 flex items-center justify-center font-bold text-lg ring-4
+                                                                    ${testimonial.rating === 1
+                                                                    ? "bg-gray-800 text-gray-100 ring-gray-400"
+                                                                    : testimonial.rating === 2
+                                                                        ? "bg-orange-800 text-orange-100 ring-orange-400"
+                                                                        : testimonial.rating === 3
+                                                                            ? "bg-yellow-800 text-yellow-100 ring-yellow-400"
+                                                                            : testimonial.rating === 4
+                                                                                ? "bg-green-800 text-green-100 ring-green-400"
+                                                                                : testimonial.rating === 5
+                                                                                    ? "bg-blue-800 text-blue-100 ring-blue-400"
+                                                                                    : "bg-indigo-200 text-white ring-indigo-300"
+                                                                }`}
+                                                        >
+                                                            {testimonial.name
+                                                                ?.split(" ")
+                                                                .map((w) => w.charAt(0))
+                                                                .join("")
+                                                                .toUpperCase()}
+                                                        </div>
+                                                        <span className="absolute -bottom-1 -right-1 text-xl">
+                                                            {/* {testimonial.is_active === 1 ? '✅' : '❌'} */}
+                                                        </span>
+                                                    </div>
                                                 )}
                                                 <div>
                                                     <div className="font-bold text-lg text-gray-900">
@@ -442,6 +478,7 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                                                     </div>
                                                 </div>
                                             </div>
+
 
                                             {/* Rating */}
                                             <div className="flex items-center mb-4">
@@ -463,7 +500,7 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                                             </div>
 
                                             {/* Content */}
-                                            <p className="text-gray-700 italic leading-relaxed relative z-10">
+                                            <p className="text-gray-700 italic leading-relaxed relative z-10 line-clamp-8">
                                                 "{testimonial.content}"
                                             </p>
                                         </div>
@@ -473,28 +510,60 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                         </Swiper>
                     </div>
                     <div className="feedback text-center mt-10">
-                            <button type="button" className="cursor-pointer focus:outline-none text-blue-700 border-2 border-blue-700  hover:bg-blue-800 hover:text-white hover:font-bold transform-3d focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
-                                Your Feedback
+                        <button onClick={() => setIsFeedbackOpen(true)} type="button" className="cursor-pointer focus:outline-none text-blue-700 border-2 border-blue-700  hover:bg-blue-800 hover:text-white hover:font-bold transform-3d focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800">
+                            Your Feedback
+                        </button>
+                    </div>
+                </section>
+
+                {/* Feedback Form in Model */}
+                {isFeedbackOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                        <div className="relative bg-white rounded-xl shadow-xl w-full max-w-md mx-auto p-4">
+                            <button
+                                onClick={() => setIsFeedbackOpen(false)}
+                                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                                aria-label="Close"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
                             </button>
+                            <Form onSubmitted={() => setIsFeedbackOpen(false)} />
                         </div>
-                </section>
+                    </div>
+                )}
 
+                {/* World Map Accordion */}
                 <section>
-                    <div className="grid grid-cols-2 gap-4">
-                        <Form />
+                    <div className="max-w-5xl mx-auto">
+                        <button
+                            type="button"
+                            onClick={() => setIsMapOpen((v) => !v)}
+                            className="w-full flex items-center justify-between px-4 py-3 bg-white border border-gray-200 rounded-md shadow-sm hover:bg-gray-50"
+                        >
+                            <span className="text-left font-semibold text-gray-800">Global Presence Map</span>
+                            <svg
+                                className={`w-5 h-5 text-gray-600 transform transition-transform ${isMapOpen ? 'rotate-180' : ''}`}
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
+                        {isMapOpen && (
+                            <div className="mt-3 rounded-md border border-gray-200 bg-white p-3">
+                                <div className="h-96 z-0">
+                                    <WorldMap />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </section>
 
-                {/* World Map */}
-                {/* <WorldMap /> */}
-
-                <section>
-                    <div className="grid grid-cold-2 md:grid-cold-2 gap-4">
-                        <div>
-                            <WorldMap />
-                        </div>
-                    </div>
-                </section>
                 <section id="faqs" className="py-16 bg-white">
                     <div className="container mx-auto px-4">
                         <div className="text-center mb-12">
@@ -504,16 +573,28 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
 
                         <div className="max-w-3xl mx-auto">
                             {faqs.map((faq, index) => (
-                                <div key={index} className="border-b border-gray-200 py-4">
-                                    <button className="flex justify-between items-center w-full text-left font-semibold text-lg py-2">
-                                        {faq.question}
-                                        <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <div key={index} className="border-b border-gray-200 py-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
+                                        className="flex justify-between items-center w-full text-left font-semibold text-lg py-2"
+                                    >
+                                        <span>{faq.question}</span>
+                                        <svg
+                                            className={`w-5 h-5 text-gray-500 transform transition-transform ${openFaqIndex === index ? 'rotate-180' : ''}`}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                        >
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                         </svg>
                                     </button>
-                                    <div className="mt-2 text-gray-600">
-                                        {faq.answer}
-                                    </div>
+                                    {openFaqIndex === index && (
+                                        <div className="mt-2 text-gray-600">
+                                            {faq.answer}
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
