@@ -177,14 +177,14 @@ export default function LeadsIndex() {
                                             <div className="flex items-center justify-end space-x-3">
                                                 <button
                                                     onClick={() => openEdit(l)}
-                                                    className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
+                                                    className="cursor-pointer text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
                                                     title="Edit"
                                                 >
                                                     <Pencil className='w-4 h-4'/>
                                                 </button>
                                                 <button
                                                     onClick={() => setDeleteLead(l)}
-                                                    className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
+                                                    className="cursor-pointer text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
                                                     title="Delete"
                                                 >
                                                     <Trash2 className='w-4 h-4'/>

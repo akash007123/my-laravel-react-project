@@ -9,7 +9,7 @@ import { Pagination, Autoplay } from "swiper/modules";
 import { motion } from "framer-motion";
 import "swiper/css";
 import "swiper/css/pagination";
-import { Trash2, Pencil } from 'lucide-react'
+import { Trash2, Pencil, Eye, MoreVertical } from 'lucide-react'
 
 type AuthUser = { name: string; email: string; id: number; };
 
@@ -87,8 +87,56 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
     const [isMapOpen, setIsMapOpen] = useState(true);
     const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+    const [ownedTestimonialIds, setOwnedTestimonialIds] = useState<number[]>([]);
+    const [openActionId, setOpenActionId] = useState<number | null>(null);
 
     const { flash }: any = usePage().props;
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+        try {
+            const stored = JSON.parse(localStorage.getItem('owned_testimonial_ids') || '[]');
+            if (Array.isArray(stored)) setOwnedTestimonialIds(stored);
+        } catch { }
+    }, []);
+
+    useEffect(() => {
+        if (!testimonials || testimonials.length === 0) return;
+        if (typeof window === 'undefined') return;
+        try {
+            const raw = localStorage.getItem('pending_feedback_fingerprint');
+            if (!raw) return;
+            const fp = JSON.parse(raw) as {
+                fullname?: string;
+                designation?: string;
+                company?: string;
+                content?: string;
+                rating?: number;
+                createdAt?: number;
+            };
+            if (!fp) return;
+            const normalized = (v?: string) => (v || '').trim().toLowerCase();
+            const match = testimonials.find(t =>
+                normalized(t.name) === normalized(fp.fullname) &&
+                normalized(t.designation) === normalized(fp.designation) &&
+                normalized(t.company) === normalized(fp.company) &&
+                normalized(t.content) === normalized(fp.content) &&
+                Number((t as any).rating) === Number(fp.rating)
+            );
+            if (match && typeof match.id === 'number') {
+                const current = new Set<number>(ownedTestimonialIds);
+                current.add(match.id);
+                const next = Array.from(current);
+                setOwnedTestimonialIds(next);
+                try { localStorage.setItem('owned_testimonial_ids', JSON.stringify(next)); } catch { }
+                try { localStorage.removeItem('pending_feedback_fingerprint'); } catch { }
+            }
+        } catch { }
+    }, [testimonials]);
+
+    function canManageTestimonial(t: TestimonialItem) {
+        return ownedTestimonialIds.includes(Number(t.id));
+    }
 
     useEffect(() => {
         if (flash?.success) {
@@ -106,6 +154,10 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
     });
 
     function handleDelete(id: number) {
+        if (!ownedTestimonialIds.includes(Number(id))) {
+            alert("You can only manage your own feedback.");
+            return;
+        }
         if (!confirm("Delete this testimonial?")) return;
         router.delete(`/testimonials/${id}`);
     }
@@ -154,8 +206,8 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                 <div className="bg-blue-900 text-white py-2 text-sm">
                     <div className="container mx-auto px-4 flex justify-between items-center">
                         <div className="flex space-x-4">
-                            <a href="#" className="hover:text-blue-200">Contact Sales: 9685533878</a>
-                            <a href="#" className="hover:text-blue-200">Support Portal</a>
+                            <a href="tel:+919685533878" className="hover:text-blue-200">Contact Sales: 9685533878</a>
+                            <a href="mailto:akashraikwar763@gmail.com" className="hover:text-blue-200">Support Portal</a>
                         </div>
                         <div className="flex space-x-4">
                             <Link
@@ -403,25 +455,64 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                                         </span>
 
                                         <div className="relative z-10">
-                                            <div>
-                                                {/* {user && user.email === testimonial.email && (
+                                            <div className="relative">
+                                                {canManageTestimonial(testimonial) && (
                                                     <div className="flex gap-2 justify-end">
-                                                        <button onClick={() => handleDelete(testimonial.id)} className="text-red-600 underline mt-[-20px]">
-                                                            <Trash2 className='w-4 h-4' />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setOpenActionId(openActionId === testimonial.id ? null : testimonial.id)}
+                                                            className="text-gray-600 hover:text-gray-900 cursor-pointer"
+                                                            aria-haspopup="menu"
+                                                            aria-expanded={openActionId === testimonial.id}
+                                                            aria-label="Open actions"
+                                                        >
+                                                            <MoreVertical className='w-5 h-5' />
                                                         </button>
-                                                        <Link href={`/testimonials/${testimonial.id}/edit`
-                                                        } className="text-green-600 underline mt-[-20px]">
-                                                            <Pencil className='w-4 h-4' />
-                                                        </Link>
+                                                        {openActionId === testimonial.id && (
+                                                            <div className="absolute right-0 mt-2 w-36 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                                                                <ul className="py-1 text-sm text-gray-700">
+                                                                    <li>
+                                                                        <Link
+                                                                            href={`/testimonials/${testimonial.id}`}
+                                                                            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50"
+                                                                            onClick={() => setOpenActionId(null)}
+                                                                        >
+                                                                            <Eye className='w-4 h-4' />
+                                                                            View
+                                                                        </Link>
+                                                                    </li>
+                                                                    <li>
+                                                                        <Link
+                                                                            href={`/testimonials/${testimonial.id}/edit`}
+                                                                            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50"
+                                                                            onClick={() => setOpenActionId(null)}
+                                                                        >
+                                                                            <Pencil className='w-4 h-4' />
+                                                                            Edit
+                                                                        </Link>
+                                                                    </li>
+                                                                    <li>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => { setOpenActionId(null); handleDelete(testimonial.id); }}
+                                                                            className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-gray-50 text-red-600"
+                                                                        >
+                                                                            <Trash2 className='w-4 h-4' />
+                                                                            Delete
+                                                                        </button>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )} */}
+                                                )}
                                             </div>
                                             <div>
 
                                                 <div className="flex gap-2 justify-start items-center">
                                                     {/* Status indicator */}
-                                                    <span className={`text-sm font-semibold ${testimonial.is_active === 1 ? 'text-green-600' : 'text-red-600'}`}>
-                                                        {/* {testimonial.is_active === 1 ? 'Active' : 'Inactive'} */}
+                                                    <span className={`text-sm font-semibold border-2 rounded-full px-2 py-1 ${testimonial.is_active === 1 ? 'border-green-600' : 'border-red-600'}`}>
+                                                        {testimonial.is_active === 1 ? 'Active' : 'Inactive'}
                                                     </span>
                                                 </div>
 
@@ -435,9 +526,6 @@ export default function LayoutIndex({ user, layout = [], stats, features = [], f
                                                             alt={testimonial.name}
                                                             className={`w-14 h-14 rounded-full mr-4 object-cover ring-4 ring-indigo-300`}
                                                         />
-                                                        <span className="absolute -bottom-1 -right-1 text-xl">
-                                                            {/* {testimonial.is_active === 1 ? '✅' : '❌'} */}
-                                                        </span>
                                                     </div>
                                                 ) : (
                                                     <div className="relative">

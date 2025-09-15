@@ -17,18 +17,32 @@ export default function Show() {
   const { testimonial } = usePage<{ testimonial: Testimonial }>().props;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">{testimonial.fullname}</h1>
-      <p className="text-gray-600">{testimonial.designation} @ {testimonial.company}</p>
-      <p className="mt-2">{testimonial.message}</p>
-      <p className="mt-2 text-yellow-600">⭐ {testimonial.rating}</p>
+    <>
+      
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 px-4">
+        <div className="max-w-xl w-full bg-white shadow-lg rounded-xl p-8 mt-4 mb-4">
+          <h2 className="mb-5 text-center text-lg font-bold">Thanks for your feedback &#128519;</h2>
+          <h1 className="text-3xl font-bold text-gray-800 mb-2">{testimonial.fullname}</h1>
+          <p className="text-gray-500 text-sm mb-4">
+            {testimonial.designation} @ {testimonial.company}
+          </p>
 
-      <Link
-        href="/testimonials"
-        className="mt-4 inline-block text-blue-600 underline"
-      >
-        Back
-      </Link>
-    </div>
+          <p className="text-gray-700 mb-4 leading-relaxed">
+            {testimonial.message}
+          </p>
+
+          <p className="text-yellow-500 text-xl mb-6">
+            {'⭐'.repeat(testimonial.rating)}
+          </p>
+
+          <Link href="/layout" className="inline-block">
+            <span className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800 transition">
+              ← Back
+            </span>
+          </Link>
+        </div>
+      </div>
+    </>
+
   );
 }

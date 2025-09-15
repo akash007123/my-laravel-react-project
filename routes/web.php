@@ -17,6 +17,10 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\TestimonialsController;
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\BlogController;
 
 // use Models
 use App\Models\Event;
@@ -28,6 +32,7 @@ use App\Models\Department;
 use App\Models\Lead;
 use App\Models\Applicant;
 use App\Models\Testimonial;
+use App\Models\Blog;
 
 Route::get('/', function () {
     return Inertia::render('welcome');
@@ -46,6 +51,7 @@ Route::middleware(['auth'])->group(function () {
         $totalDepartments = Department::count();
         $totalLeads = Lead::count();
         $totalApplicants = Applicant::count();
+        $totalBlog = Blog::count();
         $recentProjects = Project::latest()->take(3)->get()->map(function ($p) {
             return [
                 'id' => $p->id,
@@ -135,6 +141,13 @@ Route::middleware(['auth'])->group(function () {
     Route::resource("leads",LeadController::class);
     Route::resource("applicants",ApplicantController::class);
     Route::resource("testimonials",TestimonialsController::class);
+
+    Route::resource('authors', AuthorController::class);
+    Route::resource('categories', CategoryController::class);
+    Route::resource('tags', TagController::class);
+    Route::get('blogs/blogcardpage', [BlogController::class, 'cardPage'])->name('blogs.blogcardpage');
+    Route::resource('blogs', BlogController::class);
+
     Route::get('/links', [LinkController::class, 'index'])->name('links.index');
     Route::post('/links', [LinkController::class, 'store'])->name('links.store');
     Route::post('/links/{link}', [LinkController::class, 'update'])->name('links.update');

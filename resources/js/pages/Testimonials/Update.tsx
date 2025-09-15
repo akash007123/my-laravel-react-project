@@ -17,7 +17,7 @@ interface Testimonial {
 export default function Update() {
   const { testimonial } = usePage<{ testimonial: Testimonial }>().props;
 
-  const { data, setData, put, processing, errors } = useForm({
+  const { data, setData, post, put, processing, errors, transform } = useForm({
     fullname: testimonial.fullname || "",
     email: testimonial.email || "",
     phone: testimonial.phone || "",
@@ -32,7 +32,13 @@ export default function Update() {
   function handleSubmit(e: React.FormEvent) {
     console.log(data,"data receive")
     e.preventDefault();
-    put(`/testimonials/${testimonial.id}`);
+    transform((payload) => ({ ...payload, _method: 'put' }));
+    post(`/testimonials/${testimonial.id}`, {
+      forceFormData: true,
+      onFinish: () => {
+        transform((payload) => ({ ...payload, _method: undefined as any }));
+      }
+    });
   }
 
   return (
@@ -118,7 +124,7 @@ export default function Update() {
                   const index = i + 1;
                   const active = index <= (data.rating || 0);
                   return (
-                    <button
+                                          <button
                       type="button"
                       key={index}
                       onClick={() => setData("rating", index)}

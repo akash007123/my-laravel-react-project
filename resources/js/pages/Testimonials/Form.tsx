@@ -20,6 +20,17 @@ export default function Create({ onSubmitted }: FormProps) {
         e.preventDefault();
         post("/testimonials", {
             onSuccess: () => {
+                try {
+                    const fingerprint = {
+                        fullname: data.fullname?.trim() || "",
+                        designation: data.designation?.trim() || "",
+                        company: data.company?.trim() || "",
+                        content: data.message?.trim() || "",
+                        rating: data.rating || 0,
+                        createdAt: Date.now(),
+                    };
+                    localStorage.setItem("pending_feedback_fingerprint", JSON.stringify(fingerprint));
+                } catch {}
                 reset();
                 onSubmitted?.();
             },

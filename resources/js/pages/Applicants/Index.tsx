@@ -227,21 +227,21 @@ export default function ApplicantsIndex() {
                                             <div className="flex items-center justify-end space-x-3">
                                                 <button
                                                     onClick={() => openView(a.id)}
-                                                    className="text-blue-600 hover:text-blue-900 p-1.5 rounded-md hover:bg-blue-50 transition-colors duration-150"
+                                                    className="cursor-pointer text-blue-600 hover:text-blue-900 p-1.5 rounded-md hover:bg-blue-50 transition-colors duration-150"
                                                     title="View details"
                                                 >
                                                     <Eye className='w-4 h-4' />
                                                 </button>
                                                 <button
                                                     onClick={() => router.visit(route('applicants.edit', a.id))}
-                                                    className="text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
+                                                    className="cursor-pointer text-indigo-600 hover:text-indigo-900 p-1.5 rounded-md hover:bg-indigo-50 transition-colors duration-150"
                                                     title="Edit"
                                                 >
                                                     <Pencil className='w-4 h-4' />
                                                 </button>
                                                 <button
                                                     onClick={() => setDeleteItem(a)}
-                                                    className="text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
+                                                    className="cursor-pointer text-red-600 hover:text-red-900 p-1.5 rounded-md hover:bg-red-50 transition-colors duration-150"
                                                     title="Delete"
                                                 >
                                                     <Trash2 className='w-4 h-4' />

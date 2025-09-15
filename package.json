@@ -25,6 +25,9 @@
     "dependencies": {
         "@chakra-ui/react": "^3.26.0",
         "@emotion/react": "^11.14.0",
+        "@fortawesome/fontawesome-svg-core": "^7.0.1",
+        "@fortawesome/free-solid-svg-icons": "^7.0.1",
+        "@fortawesome/react-fontawesome": "^3.0.2",
         "@fullcalendar/daygrid": "^6.1.19",
         "@fullcalendar/interaction": "^6.1.19",
         "@fullcalendar/react": "^6.1.19",
@@ -54,6 +57,7 @@
         "concurrently": "^9.0.1",
         "country-state-city": "^3.2.1",
         "d3-geo": "^3.1.1",
+        "font-awesome-icons": "^1.6.0",
         "framer-motion": "^12.23.12",
         "globals": "^15.14.0",
         "jsvectormap": "^1.7.0",

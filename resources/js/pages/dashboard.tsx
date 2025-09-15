@@ -34,14 +34,14 @@ const Section = ({ title, link, dark, children }: any) => (
 export default function Dashboard({
     user,
     totalEvents, totalProjects, totalUsers, totalHolidays,
-    totalGallery, totalDepartments, totalReports, totalLeads, totalApplicants,
+    totalGallery, totalDepartments, totalReports, totalLeads, totalApplicants, totalBlog,
     recentProjects = [], recentEvents = [], recentHolidays = [],
     recentDepartments = [], recentApplicants = [], recentLeads = [],
 }: {
     user: DashboardUser;
     totalEvents?: number; totalProjects?: number; totalUsers?: number;
     totalHolidays?: number; totalGallery?: number; totalDepartments?: number;
-    totalReports?: number; totalLeads?: number; totalApplicants?: number;
+        totalReports?: number; totalLeads?: number; totalApplicants?: number; totalBlog?: number;
     recentProjects?: RecentProject[]; recentEvents?: RecentEvent[];
     recentHolidays?: RecentHoliday[]; recentDepartments?: RecentDepartment[];
     recentApplicants?: RecentApplicant[]; recentLeads?: RecentLead[];
@@ -55,7 +55,8 @@ export default function Dashboard({
         { title: 'Total Departments', count: totalDepartments || 0, icon: <Building className="w-5 h-5" />, link: '/department', color: 'indigo', trend: 3.4 },
         { title: 'Total Reports', count: totalReports || 0, icon: <UserPen className="w-5 h-5" />, link: '/reports', color: 'orange', trend: 7.8 },
         { title: 'Leads', count: totalLeads || 0, icon: <BadgeIndianRupee className='w-5 h-5' />, link: '/leads', color: 'pink', trend: 22.4 },
-        { title: 'Applicants', count: totalApplicants || 0, icon: <Users className="w-5 h-5" />, link: '/applicants', color: 'teal', trend: 18.6 },
+        { title: 'Applicants', count: totalApplicants || 0, icon: <Users className="w-5 h-5" />, link: '/applicants', color: 'green', trend: 18.6 },
+        { title: 'Blog', count: totalBlog || 0, icon: <Users className="w-5 h-5" />, link: '/blogs', color: 'green', trend: 18.6 },
     ];
 
     const statusColors: Record<string, string> = {
