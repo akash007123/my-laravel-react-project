@@ -4,10 +4,11 @@ import { Head, Link } from '@inertiajs/react';
 import {
     CalendarCheck, Users, BriefcaseBusiness, CalendarDays, Image,
     Building, UserPen, BadgeIndianRupee, ChevronRight,
-    ArrowUpRight, Plus, TrendingUp, MapPin, Building2
+    ArrowUpRight, Plus, TrendingUp, MapPin, Building2, Rss, FilePenLine, CheckCircle
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { formatDateOnly, formatDateTimeDay } from './utils';
+import type { ReactNode } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Dashboard', href: '/dashboard' }];
 
@@ -18,7 +19,7 @@ type RecentHoliday = { id: number; holiday_name: string; holiday_date: string; d
 type RecentDepartment = { id: number; department_name: string; department_head: string };
 type RecentApplicant = { id: number; name: string; email: string; mobile: string, city: string };
 type RecentLead = { id: number; full_name: string; email: string; company_name: string; country: string; }
-type RecentBlog = { id: number; title: string; featured_image: string | null; status: string; created_at: string;}
+type RecentBlog = { id: number; title: string; featured_image: string | null; status: string; created_at: string; }
 
 const Section = ({ title, link, dark, children }: any) => (
     <div className={`${dark ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900'} rounded-xl shadow p-5`}>
@@ -42,7 +43,7 @@ export default function Dashboard({
     user: DashboardUser;
     totalEvents?: number; totalProjects?: number; totalUsers?: number;
     totalHolidays?: number; totalGallery?: number; totalDepartments?: number;
-        totalReports?: number; totalLeads?: number; totalApplicants?: number; totalBlog?: number;
+    totalReports?: number; totalLeads?: number; totalApplicants?: number; totalBlog?: number;
     recentProjects?: RecentProject[]; recentEvents?: RecentEvent[];
     recentHolidays?: RecentHoliday[]; recentDepartments?: RecentDepartment[];
     recentApplicants?: RecentApplicant[]; recentLeads?: RecentLead[]; recentBlog?: RecentBlog[];
@@ -57,7 +58,7 @@ export default function Dashboard({
         { title: 'Total Reports', count: totalReports || 0, icon: <UserPen className="w-5 h-5" />, link: '/reports', color: 'orange', trend: 7.8 },
         { title: 'Leads', count: totalLeads || 0, icon: <BadgeIndianRupee className='w-5 h-5' />, link: '/leads', color: 'pink', trend: 22.4 },
         { title: 'Applicants', count: totalApplicants || 0, icon: <Users className="w-5 h-5" />, link: '/applicants', color: 'green', trend: 18.6 },
-        { title: 'Blog', count: totalBlog || 0, icon: <Users className="w-5 h-5" />, link: '/blogs', color: 'green', trend: 28.7 },
+        { title: 'Blog', count: totalBlog || 0, icon: <Rss className="w-5 h-5" />, link: '/blogs', color: 'red', trend: 28.7 },
     ];
 
     const statusColors: Record<string, string> = {
@@ -67,9 +68,21 @@ export default function Dashboard({
         cancelled: 'bg-gradient-to-r from-red-500 to-pink-600 text-white'
     };
 
-    const statusBlogColors: Record<string, string> = {
-        draft: 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white',
-        published: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white',
+    const statusBlogConfig: Record<
+        string,
+        {
+            color: string;
+            icon: ReactNode;
+        }
+    > = {
+        draft: {
+            color: 'bg-amber-100 text-amber-800',
+            icon: <FilePenLine className="w-4 h-4 " />,
+        },
+        published: {
+            color: 'bg-emerald-100 text-emerald-800',
+            icon: <CheckCircle className="w-4 h-4" />,
+        },
     };
 
     return (
@@ -171,30 +184,30 @@ export default function Dashboard({
                         </div>
 
                         <div className="bg-white rounded-xl shadow-2xl shadow-gray-800 border border-gray-200 p-5">
-                        {/* Applicants */}
-                        {recentApplicants.length > 0 && (
-                            <Section title="Job Applicants" link="/applicants">
-                                {recentApplicants.map(a => (
-                                    <Link key={a.id} href={route('applicants.show', a.id)}
-                                        className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 group border">
-                                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <span className="text-blue-600 font-medium">{a.name.split(' ').map(n => n[0]).join('').toUpperCase()}</span>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="font-medium truncate group-hover:text-blue-600">{a.name}</h3>
-                                            <p className="text-sm text-gray-500 truncate">{a.email}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm text-gray-500">{a.mobile}</p>
-                                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800 flex gap-1"><MapPin className='w-4 h-4' /> {a.city}</span>
-                                        </div>
-                                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
-                                    </Link>
-                                ))}
-                            </Section>
+                            {/* Applicants */}
+                            {recentApplicants.length > 0 && (
+                                <Section title="Job Applicants" link="/applicants">
+                                    {recentApplicants.map(a => (
+                                        <Link key={a.id} href={route('applicants.show', a.id)}
+                                            className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 group border">
+                                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                <span className="text-blue-600 font-medium">{a.name.split(' ').map(n => n[0]).join('').toUpperCase()}</span>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-medium truncate group-hover:text-blue-600">{a.name}</h3>
+                                                <p className="text-sm text-gray-500 truncate">{a.email}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm text-gray-500">{a.mobile}</p>
+                                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-green-100 text-green-800 flex gap-1"><MapPin className='w-4 h-4' /> {a.city}</span>
+                                            </div>
+                                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
+                                        </Link>
+                                    ))}
+                                </Section>
                             )}
                         </div>
-                        
+
                         <div className="bg-white rounded-xl shadow-2xl shadow-gray-800 border border-gray-200 p-5">
                             {/* Leads */}
                             {recentLeads.length > 0 && (
@@ -237,7 +250,8 @@ export default function Dashboard({
                                                 <h3 className="font-medium truncate group-hover:text-blue-600">{b.title}</h3>
                                                 <p className="text-sm text-gray-500">{formatDateOnly(b.created_at)}</p>
                                             </div>
-                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusBlogColors[b.status] || 'bg-gray-100 text-gray-800'}`}>
+                                            <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${statusBlogConfig[b.status]?.color || 'bg-gray-100 text-gray-800'}`}>
+                                                {statusBlogConfig[b.status]?.icon}
                                                 {b.status}
                                             </span>
                                             <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 ml-2" />
@@ -307,7 +321,13 @@ export default function Dashboard({
                                     { href: '/projects/create', label: 'New Project', icon: <Plus className="w-5 h-5" />, color: 'blue' },
                                     { href: '/events/create', label: 'New Event', icon: <Plus className="w-5 h-5" />, color: 'green' },
                                     { href: '/leads/create', label: 'New Lead', icon: <Plus className="w-5 h-5" />, color: 'purple' },
-                                    { href: '/reports/create', label: 'Reports', icon: <UserPen className="w-5 h-5" />, color: 'orange' },
+                                    { href: '/reports/create', label: 'Add Reports', icon: <Plus className="w-5 h-5" />, color: 'orange' },
+                                    { href: '/blogs/create', label: 'New Blogs', icon: <Plus className="w-5 h-5" />, color: 'yellow' },
+                                    { href: '/department/create', label: 'Departments', icon: <Plus className='w-5 h-5' />, color: 'red' },
+                                    { href: '/users', label: 'User', icon: <Plus className='w-5 h-5' />, color: 'pink' },
+                                    { href: '/gallery', label: 'Gallery', icon: <Plus className='w-5 h-5' />, color: 'purple' },
+                                    { href: '/leads/create', label: 'New Leads', icon: <Plus className='w-5 h-5' />, color: 'green' },
+                                    { href: '/applicants/create', label: 'Applkicants', icon: <Plus className='w-5 h-5' />, color: 'pink' }
                                 ].map(a => (
                                     <Link key={a.href} href={a.href}
                                         className={`flex flex-col items-center justify-center p-4 rounded-lg bg-${a.color}-50 hover:bg-${a.color}-100 text-${a.color}-700 border border-${a.color}-100`}>

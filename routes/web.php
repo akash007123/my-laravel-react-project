@@ -106,12 +106,13 @@ Route::middleware(['auth'])->group(function () {
                 'country' => $l->country,
             ];
         });
-        $recentBlogs= \App\Models\Blog::latest()->take(3)->get()->map(function ($b) {
+        $recentBlogs = \App\Models\Blog::latest()->take(3)->get()->map(function ($b) {
             return [
                 'id' => $b->id,
-                'title' => $b->fultitlel_name,
-                'featured_image' => $b->featured_image,
+                'title' => $b->title,
+                'featured_image' => $b->featured_image ? asset('storage/'.$b->featured_image) : null,
                 'status' => $b->status,
+                'created_at' => optional($b->created_at)->toDateString(),
             ];
         });
        
@@ -137,7 +138,7 @@ Route::middleware(['auth'])->group(function () {
             'recentDepartments' => $recentDepartments,
             'recentApplicants' => $recentApplicants,
             'recentLeads' => $recentLeads,
-            'recentBlogs' => $recentBlogs,
+            'recentBlog' => $recentBlogs,
 
         ]);
     })->name('dashboard');
