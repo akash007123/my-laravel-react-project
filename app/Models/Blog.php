@@ -18,6 +18,7 @@ class Blog extends Model
         'content',
         'featured_image',
         'status',
+        'created_at'
     ];
 
     public function author(): BelongsTo

@@ -18,6 +18,7 @@ type RecentHoliday = { id: number; holiday_name: string; holiday_date: string; d
 type RecentDepartment = { id: number; department_name: string; department_head: string };
 type RecentApplicant = { id: number; name: string; email: string; mobile: string, city: string };
 type RecentLead = { id: number; full_name: string; email: string; company_name: string; country: string; }
+type RecentBlog = { id: number; title: string; featured_image: string | null; status: string; created_at: string;}
 
 const Section = ({ title, link, dark, children }: any) => (
     <div className={`${dark ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900'} rounded-xl shadow p-5`}>
@@ -36,7 +37,7 @@ export default function Dashboard({
     totalEvents, totalProjects, totalUsers, totalHolidays,
     totalGallery, totalDepartments, totalReports, totalLeads, totalApplicants, totalBlog,
     recentProjects = [], recentEvents = [], recentHolidays = [],
-    recentDepartments = [], recentApplicants = [], recentLeads = [],
+    recentDepartments = [], recentApplicants = [], recentLeads = [], recentBlog = [],
 }: {
     user: DashboardUser;
     totalEvents?: number; totalProjects?: number; totalUsers?: number;
@@ -44,7 +45,7 @@ export default function Dashboard({
         totalReports?: number; totalLeads?: number; totalApplicants?: number; totalBlog?: number;
     recentProjects?: RecentProject[]; recentEvents?: RecentEvent[];
     recentHolidays?: RecentHoliday[]; recentDepartments?: RecentDepartment[];
-    recentApplicants?: RecentApplicant[]; recentLeads?: RecentLead[];
+    recentApplicants?: RecentApplicant[]; recentLeads?: RecentLead[]; recentBlog?: RecentBlog[];
 }) {
     const stats = [
         { title: 'Total Events', count: totalEvents || 0, icon: <CalendarCheck className="w-5 h-5" />, link: '/events', color: 'blue', trend: 12.5 },
@@ -56,7 +57,7 @@ export default function Dashboard({
         { title: 'Total Reports', count: totalReports || 0, icon: <UserPen className="w-5 h-5" />, link: '/reports', color: 'orange', trend: 7.8 },
         { title: 'Leads', count: totalLeads || 0, icon: <BadgeIndianRupee className='w-5 h-5' />, link: '/leads', color: 'pink', trend: 22.4 },
         { title: 'Applicants', count: totalApplicants || 0, icon: <Users className="w-5 h-5" />, link: '/applicants', color: 'green', trend: 18.6 },
-        { title: 'Blog', count: totalBlog || 0, icon: <Users className="w-5 h-5" />, link: '/blogs', color: 'green', trend: 18.6 },
+        { title: 'Blog', count: totalBlog || 0, icon: <Users className="w-5 h-5" />, link: '/blogs', color: 'green', trend: 28.7 },
     ];
 
     const statusColors: Record<string, string> = {
@@ -64,6 +65,11 @@ export default function Dashboard({
         ongoing: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white',
         completed: 'bg-gradient-to-r from-orange-500 to-red-600 text-white',
         cancelled: 'bg-gradient-to-r from-red-500 to-pink-600 text-white'
+    };
+
+    const statusBlogColors: Record<string, string> = {
+        draft: 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white',
+        published: 'bg-gradient-to-r from-green-500 to-emerald-600 text-white',
     };
 
     return (
@@ -190,29 +196,56 @@ export default function Dashboard({
                         </div>
                         
                         <div className="bg-white rounded-xl shadow-2xl shadow-gray-800 border border-gray-200 p-5">
-                        {/* Leads */}
-                        {recentLeads.length > 0 && (
-                            <Section title="Recent Leads" link="/leads">
-                                {recentLeads.map(l => (
-                                    <Link  href={route('leads.index')}
-                                        className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 group border">
-                                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <span className="text-blue-600 font-medium">{l.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}</span>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h3 className="font-medium truncate group-hover:text-blue-600">{l.full_name}</h3>
-                                            <p className="text-sm text-gray-500 truncate">{l.email}</p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-sm text-gray-500">{l.country}</p>
-                                            <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 flex gap-1"><Building2 className='w-4 h-4' /> {l.company_name}</span>
-                                        </div>
-                                        <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
-                                    </Link>
-                                ))}
-                            </Section>
+                            {/* Leads */}
+                            {recentLeads.length > 0 && (
+                                <Section title="Recent Leads" link="/leads">
+                                    {recentLeads.map(l => (
+                                        <Link href={route('leads.index')}
+                                            className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 group border">
+                                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                                <span className="text-blue-600 font-medium">{l.full_name.split(' ').map(n => n[0]).join('').toUpperCase()}</span>
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-medium truncate group-hover:text-blue-600">{l.full_name}</h3>
+                                                <p className="text-sm text-gray-500 truncate">{l.email}</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-sm text-gray-500">{l.country}</p>
+                                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 flex gap-1"><Building2 className='w-4 h-4' /> {l.company_name}</span>
+                                            </div>
+                                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600" />
+                                        </Link>
+                                    ))}
+                                </Section>
                             )}
-                            </div>
+                        </div>
+
+                        {/* Recent Blog */}
+                        <div className="bg-white rounded-xl shadow-2xl shadow-gray-800 border border-gray-200 p-5">
+                            {/* Blogs */}
+                            {recentBlog.length > 0 && (
+                                <Section title="Upcoming Events" link="/blogs/blogcardpage" className="">
+                                    {recentBlog.map(b => (
+                                        <Link key={b.id} href={route('blogs.show', b.id)}
+                                            className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 group border">
+                                            {b.featured_image
+                                                ? <img src={b.featured_image} alt={b.title} className="w-12 h-12 rounded-lg object-cover" />
+                                                : <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
+                                                    <CalendarCheck className="w-6 h-6 text-gray-400" />
+                                                </div>}
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-medium truncate group-hover:text-blue-600">{b.title}</h3>
+                                                <p className="text-sm text-gray-500">{formatDateOnly(b.created_at)}</p>
+                                            </div>
+                                            <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusBlogColors[b.status] || 'bg-gray-100 text-gray-800'}`}>
+                                                {b.status}
+                                            </span>
+                                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-blue-600 ml-2" />
+                                        </Link>
+                                    ))}
+                                </Section>
+                            )}
+                        </div>
                     </div>
 
                     {/* Right */}

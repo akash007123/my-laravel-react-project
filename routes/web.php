@@ -52,6 +52,8 @@ Route::middleware(['auth'])->group(function () {
         $totalLeads = Lead::count();
         $totalApplicants = Applicant::count();
         $totalBlog = Blog::count();
+
+        // Recent Work/Data
         $recentProjects = Project::latest()->take(3)->get()->map(function ($p) {
             return [
                 'id' => $p->id,
@@ -104,6 +106,14 @@ Route::middleware(['auth'])->group(function () {
                 'country' => $l->country,
             ];
         });
+        $recentBlogs= \App\Models\Blog::latest()->take(3)->get()->map(function ($b) {
+            return [
+                'id' => $b->id,
+                'title' => $b->fultitlel_name,
+                'featured_image' => $b->featured_image,
+                'status' => $b->status,
+            ];
+        });
        
         $yesterday = Carbon::yesterday();
         $totalReports = \App\Models\Report::whereDate('created_at', $yesterday)->count(); //use carbon for display yesterday reports only
@@ -119,6 +129,7 @@ Route::middleware(['auth'])->group(function () {
             'totalReports' => $totalReports,
             'totalLeads' => $totalLeads,
             'totalApplicants' => $totalApplicants,
+            'totalBlog' => $totalBlog,
             // Show Recents
             'recentProjects' => $recentProjects,
             'recentEvents' => $recentEvents,
@@ -126,6 +137,7 @@ Route::middleware(['auth'])->group(function () {
             'recentDepartments' => $recentDepartments,
             'recentApplicants' => $recentApplicants,
             'recentLeads' => $recentLeads,
+            'recentBlogs' => $recentBlogs,
 
         ]);
     })->name('dashboard');
